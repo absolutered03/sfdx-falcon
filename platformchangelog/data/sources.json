@@ -1,0 +1,124 @@
+[
+  {
+    "slug": "kubernetes-blog",
+    "name": "Kubernetes Blog",
+    "kind": "rss",
+    "tier": "primary",
+    "siteUrl": "https://kubernetes.io/blog/",
+    "feedUrl": "https://kubernetes.io/feed.xml",
+    "defaultCategories": [],
+    "keywordFilter": false
+  },
+  {
+    "slug": "cncf-blog",
+    "name": "CNCF Blog",
+    "kind": "rss",
+    "tier": "community",
+    "siteUrl": "https://www.cncf.io/blog/",
+    "feedUrl": "https://www.cncf.io/feed/",
+    "defaultCategories": [],
+    "keywordFilter": true
+  },
+  {
+    "slug": "platformengineering-org",
+    "name": "PlatformEngineering.org Blog",
+    "kind": "rss",
+    "tier": "community",
+    "siteUrl": "https://platformengineering.org/blog",
+    "feedUrl": "https://platformengineering.org/blog/rss.xml",
+    "defaultCategories": ["idp"],
+    "keywordFilter": false
+  },
+  {
+    "slug": "the-new-stack",
+    "name": "The New Stack",
+    "kind": "rss",
+    "tier": "media",
+    "siteUrl": "https://thenewstack.io",
+    "feedUrl": "https://thenewstack.io/feed/",
+    "defaultCategories": [],
+    "keywordFilter": true
+  },
+  {
+    "slug": "infoq",
+    "name": "InfoQ",
+    "kind": "rss",
+    "tier": "media",
+    "siteUrl": "https://www.infoq.com",
+    "feedUrl": "https://feed.infoq.com/",
+    "defaultCategories": [],
+    "keywordFilter": true
+  },
+  {
+    "slug": "gh-backstage",
+    "name": "Backstage releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "backstage/backstage",
+    "entitySlug": "backstage",
+    "defaultCategories": ["idp"]
+  },
+  {
+    "slug": "gh-argo-cd",
+    "name": "Argo CD releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "argoproj/argo-cd",
+    "entitySlug": "argo-cd",
+    "defaultCategories": ["cicd"]
+  },
+  {
+    "slug": "gh-crossplane",
+    "name": "Crossplane releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "crossplane/crossplane",
+    "entitySlug": "crossplane",
+    "defaultCategories": ["idp"]
+  },
+  {
+    "slug": "gh-kyverno",
+    "name": "Kyverno releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "kyverno/kyverno",
+    "entitySlug": "kyverno",
+    "defaultCategories": ["cost_governance", "supply_chain"]
+  },
+  {
+    "slug": "gh-kubernetes-mcp-server",
+    "name": "Kubernetes MCP Server releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "containers/kubernetes-mcp-server",
+    "entitySlug": "kubernetes-mcp-server",
+    "defaultCategories": ["ai_agents"]
+  },
+  {
+    "slug": "gh-terraform-mcp-server",
+    "name": "Terraform MCP Server releases",
+    "kind": "github_releases",
+    "tier": "vendor",
+    "githubRepo": "hashicorp/terraform-mcp-server",
+    "entitySlug": "terraform-mcp-server",
+    "defaultCategories": ["ai_agents"]
+  },
+  {
+    "slug": "gh-kagent",
+    "name": "kagent releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "kagent-dev/kagent",
+    "entitySlug": "kagent",
+    "defaultCategories": ["ai_agents"]
+  },
+  {
+    "slug": "gh-k8sgpt",
+    "name": "K8sGPT releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "k8sgpt-ai/k8sgpt",
+    "entitySlug": "k8sgpt",
+    "defaultCategories": ["ai_agents", "observability"]
+  }
+]
