@@ -21,7 +21,9 @@ import {
   type SummarizeResult,
 } from "./summarize";
 
-const SCHEMA = JSON.stringify(z.toJSONSchema(ItemSummary));
+// The CLI's validator rejects the draft 2020-12 "$schema" tag zod adds; the schema body is the same.
+const { $schema: _draft, ...schemaBody } = z.toJSONSchema(ItemSummary) as Record<string, unknown>;
+const SCHEMA = JSON.stringify(schemaBody);
 const TIMEOUT_MS = 180_000;
 
 interface CliModelUsage {

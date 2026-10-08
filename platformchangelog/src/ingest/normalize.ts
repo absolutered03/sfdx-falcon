@@ -113,9 +113,9 @@ export function parseFeed(xml: string): RawItem[] {
 // release branches at once, and Crossplane/Kyverno publish chart and API-module tags
 // alongside the real release.
 
-// v1.2.0-rc.1, v1.56.0-next.2, 2.0.0-beta, nightly.
+// v1.2.0-rc.1, v1.56.0-next.2, v16.5.0-canary.3, 2.0.0-beta, nightly.
 export const isPrerelease = (title: string) =>
-  /-(rc|alpha|beta|pre|preview|next|nightly|dev)[.\d]*\b/i.test(title) || /\bnightly\b/i.test(title);
+  /-(rc|alpha|beta|pre|preview|next|canary|nightly|dev)[.\d]*\b/i.test(title) || /\bnightly\b/i.test(title);
 
 // "v2.4.2" or "v3.5.4: Bump version" is a product release; "apis/v2.4.2" or
 // "kyverno-chart-3.9.1" is a component tag.
