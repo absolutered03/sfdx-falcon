@@ -15,7 +15,7 @@ export default async function ToolPage({ params }: { params: Params }) {
   const { slug } = await params;
   const data = await getEntityPage(slug);
   if (!data) notFound();
-  const { entity, releases, caseNotes, coverage, alternatives } = data;
+  const { entity, current, releases, caseNotes, coverage, alternatives } = data;
   const ad = await getPlacement("entity_sidebar", { entitySlug: slug });
 
   return (
@@ -23,6 +23,11 @@ export default async function ToolPage({ params }: { params: Params }) {
       <h1 style={{ fontSize: 24, marginBottom: 4 }}>{entity.name}</h1>
       <div className="meta">
         <span>{entity.kind.replace("_", " ")}</span>
+        {current && (
+          <span>
+            Current: <a href={current.url} rel="noopener nofollow">{current.version}</a> ({current.publishedAt.toISOString().slice(0, 10)})
+          </span>
+        )}
         {entity.governance && <span>{entity.governance}</span>}
         {entity.vendor && <span>Vendor: {entity.vendor}</span>}
         {entity.homepageUrl && <a href={entity.homepageUrl} rel="noopener">Site</a>}

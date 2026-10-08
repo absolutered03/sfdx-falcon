@@ -17,12 +17,25 @@ export default async function Tools() {
           <section key={c}>
             <h2 style={{ fontSize: 18 }}>{CATEGORY_LABELS[c]}</h2>
             <table>
+              <thead>
+                <tr><th>Tool</th><th>What it is</th><th>Current</th><th>Governance</th></tr>
+              </thead>
               <tbody>
                 {list.map((e) => (
                   <tr key={e.slug}>
-                    <td style={{ width: "30%" }}><a href={`/tools/${e.slug}`}>{e.name}</a></td>
+                    <td style={{ width: "26%" }}><a href={`/tools/${e.slug}`}>{e.name}</a></td>
                     <td>{e.description}</td>
-                    <td style={{ width: "18%", color: "var(--muted)" }}>{e.governance ?? e.license}</td>
+                    <td style={{ width: "16%", whiteSpace: "nowrap" }}>
+                      {e.current ? (
+                        <>
+                          <a href={e.current.url} rel="noopener nofollow">{e.current.version}</a>
+                          <div style={{ color: "var(--muted)", fontSize: 12 }}>{e.current.publishedAt.toISOString().slice(0, 10)}</div>
+                        </>
+                      ) : (
+                        <span style={{ color: "var(--muted)" }}>{e.license === "commercial" ? "SaaS" : "n/a"}</span>
+                      )}
+                    </td>
+                    <td style={{ width: "16%", color: "var(--muted)" }}>{e.governance ?? e.license}</td>
                   </tr>
                 ))}
               </tbody>

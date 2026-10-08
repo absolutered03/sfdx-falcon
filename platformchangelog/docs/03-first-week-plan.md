@@ -71,6 +71,15 @@ New category: **Enterprise app platforms** (`app_platforms`), Salesforce first: 
 | 6 | `npm run digest`, write the intro and reader question, set it up in Buttondown. Read the whole site once on a phone. | Digest #1 ready to send |
 | 7 | Soft launch: one LinkedIn post about why a vendor-neutral registry for this niche is needed, link in the first comment. Send digest #1 to whoever subscribed. | First 25 subscribers is a fine day-7 number |
 
+## Backfill (decided 2026-10-08)
+
+| What | Backfill? | Why |
+|---|---|---|
+| **Current version and recent release history** | ✅ automatic | On a feed's first fetch, releases older than the 30-day window are stored as logged history (no LLM, no review). GitHub's release feed holds the latest 10, which is enough for every tool to show a current version on day one. |
+| **One reviewed entry per tool** | ✅ recommended, one sitting | Summarize each tool's latest minor or major release so every visible page opens with a reviewed "what changed". About 30 drafts, at roughly $0.0014 each on Haiku 5.5; the real cost is about an hour of review. |
+| **Feed news older than 30 days** | ❌ | A "what shipped" feed full of old news reads as stale, and blog feeds only expose recent posts anyway. |
+| **A year of release history** | ⏸ later, if wanted | Needs the GitHub API with a token (60 requests an hour without one). Nice for tool pages, not needed to launch. |
+
 ## Attaching platformchangelog.dev
 
 1. In Railway, open the web service, Settings, Networking, **Custom Domain**, and add `platformchangelog.dev`. Railway shows the DNS record to create.

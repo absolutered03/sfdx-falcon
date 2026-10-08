@@ -376,19 +376,6 @@
     "releasePolicy": "major_or_security"
   },
   {
-    "slug": "gh-pp-actions",
-    "name": "Power Platform GitHub Actions releases",
-    "kind": "github_releases",
-    "tier": "vendor",
-    "githubRepo": "microsoft/powerplatform-actions",
-    "entitySlug": "power-platform-build-tools",
-    "defaultCategories": [
-      "app_platforms",
-      "cicd"
-    ],
-    "releasePolicy": "major_or_security"
-  },
-  {
     "slug": "gh-sap-btp-terraform",
     "name": "Terraform Provider for SAP BTP releases",
     "kind": "github_releases",
@@ -436,5 +423,102 @@
       "retirement",
       "licensing"
     ]
+  },
+  {
+    "slug": "gh-helm",
+    "name": "Helm releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "helm/helm",
+    "entitySlug": "helm",
+    "defaultCategories": [
+      "cicd"
+    ],
+    "releasePolicy": "standard"
+  },
+  {
+    "slug": "gh-cluster-api",
+    "name": "Cluster API releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "kubernetes-sigs/cluster-api",
+    "entitySlug": "cluster-api",
+    "defaultCategories": [
+      "idp"
+    ],
+    "releasePolicy": "standard"
+  },
+  {
+    "slug": "gh-karpenter",
+    "name": "Karpenter (AWS provider) releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "aws/karpenter-provider-aws",
+    "entitySlug": "karpenter",
+    "defaultCategories": [
+      "cost_governance"
+    ],
+    "releasePolicy": "standard"
+  },
+  {
+    "slug": "gh-kro",
+    "name": "kro releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "kubernetes-sigs/kro",
+    "entitySlug": "kro",
+    "defaultCategories": [
+      "idp"
+    ],
+    "releasePolicy": "standard"
+  },
+  {
+    "slug": "gh-pulumi",
+    "name": "Pulumi releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "pulumi/pulumi",
+    "entitySlug": "pulumi",
+    "defaultCategories": [
+      "idp"
+    ],
+    "releasePolicy": "major_or_security"
+  },
+  {
+    "slug": "gh-kargo",
+    "name": "Kargo releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "akuity/kargo",
+    "entitySlug": "kargo",
+    "defaultCategories": [
+      "cicd"
+    ],
+    "releasePolicy": "standard"
+  },
+  {
+    "slug": "gh-flagger",
+    "name": "Flagger releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "fluxcd/flagger",
+    "entitySlug": "flagger",
+    "defaultCategories": [
+      "cicd"
+    ],
+    "releasePolicy": "standard"
+  },
+  {
+    "slug": "gh-flagd",
+    "name": "OpenFeature flagd releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "open-feature/flagd",
+    "entitySlug": "openfeature",
+    "defaultCategories": [
+      "cicd"
+    ],
+    "releasePolicy": "major_or_security",
+    "tagPattern": "^flagd: "
   }
 ]

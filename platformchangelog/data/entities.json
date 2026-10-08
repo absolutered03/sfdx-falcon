@@ -476,6 +476,197 @@
       "vendor": "SAP",
       "license": "oss",
       "governance": "vendor-owned"
+    },
+    {
+      "slug": "helm",
+      "name": "Helm",
+      "kind": "tool",
+      "categories": [
+        "cicd"
+      ],
+      "description": "The package manager for Kubernetes: charts bundle manifests, configuration values and upgrade logic.",
+      "homepageUrl": "https://helm.sh",
+      "repoUrl": "https://github.com/helm/helm",
+      "vendor": null,
+      "license": "oss",
+      "governance": "CNCF graduated"
+    },
+    {
+      "slug": "cluster-api",
+      "name": "Cluster API",
+      "kind": "tool",
+      "categories": [
+        "idp"
+      ],
+      "description": "Kubernetes project for creating, upgrading and operating Kubernetes clusters declaratively, across clouds and on-premises.",
+      "homepageUrl": "https://cluster-api.sigs.k8s.io",
+      "repoUrl": "https://github.com/kubernetes-sigs/cluster-api",
+      "vendor": null,
+      "license": "oss",
+      "governance": "Kubernetes SIG Cluster Lifecycle"
+    },
+    {
+      "slug": "karpenter",
+      "name": "Karpenter",
+      "kind": "tool",
+      "categories": [
+        "cost_governance"
+      ],
+      "description": "Kubernetes node autoscaler that provisions right-sized compute directly in response to pending pods.",
+      "homepageUrl": "https://karpenter.sh",
+      "repoUrl": "https://github.com/aws/karpenter-provider-aws",
+      "vendor": "AWS (provider)",
+      "license": "oss",
+      "governance": "Kubernetes SIG Autoscaling (core)"
+    },
+    {
+      "slug": "kro",
+      "name": "kro",
+      "kind": "tool",
+      "categories": [
+        "idp"
+      ],
+      "description": "Kube Resource Orchestrator: define higher-level platform APIs that group Kubernetes resources, without writing a custom controller.",
+      "repoUrl": "https://github.com/kubernetes-sigs/kro",
+      "vendor": null,
+      "license": "oss",
+      "governance": "Kubernetes project, backed by AWS, Google and Microsoft"
+    },
+    {
+      "slug": "pulumi",
+      "name": "Pulumi",
+      "kind": "tool",
+      "categories": [
+        "idp"
+      ],
+      "description": "Infrastructure as code written in general-purpose languages such as TypeScript, Python and Go; open source engine with a commercial cloud service.",
+      "homepageUrl": "https://www.pulumi.com",
+      "repoUrl": "https://github.com/pulumi/pulumi",
+      "vendor": "Pulumi",
+      "license": "open_core",
+      "governance": "vendor-owned"
+    },
+    {
+      "slug": "kargo",
+      "name": "Kargo",
+      "kind": "tool",
+      "categories": [
+        "cicd"
+      ],
+      "description": "Promotes releases through environments on top of Argo CD, with verification gates between stages.",
+      "homepageUrl": "https://kargo.io",
+      "repoUrl": "https://github.com/akuity/kargo",
+      "vendor": "Akuity",
+      "license": "oss",
+      "governance": "vendor-led open source"
+    },
+    {
+      "slug": "flagger",
+      "name": "Flagger",
+      "kind": "tool",
+      "categories": [
+        "cicd"
+      ],
+      "description": "Progressive delivery operator for Kubernetes: automates canary, A/B and blue-green releases using metrics from a service mesh or ingress.",
+      "homepageUrl": "https://flagger.app",
+      "repoUrl": "https://github.com/fluxcd/flagger",
+      "vendor": null,
+      "license": "oss",
+      "governance": "CNCF (Flux project)"
+    },
+    {
+      "slug": "openfeature",
+      "name": "OpenFeature",
+      "kind": "standard",
+      "categories": [
+        "cicd"
+      ],
+      "description": "CNCF standard API for feature flags, with SDKs for most languages and flagd as its reference flag daemon.",
+      "homepageUrl": "https://openfeature.dev",
+      "repoUrl": "https://github.com/open-feature/flagd",
+      "vendor": null,
+      "license": "oss",
+      "governance": "CNCF"
+    },
+    {
+      "slug": "gitlab",
+      "name": "GitLab",
+      "kind": "platform",
+      "categories": [
+        "cicd"
+      ],
+      "description": "DevSecOps platform combining source control, CI/CD, security scanning and deployment, as SaaS or self-managed.",
+      "homepageUrl": "https://about.gitlab.com",
+      "vendor": "GitLab",
+      "license": "open_core",
+      "governance": "vendor-owned"
+    },
+    {
+      "slug": "harness",
+      "name": "Harness",
+      "kind": "platform",
+      "categories": [
+        "cicd"
+      ],
+      "description": "Commercial software delivery platform covering CI, CD, feature flags and cloud cost management.",
+      "homepageUrl": "https://www.harness.io",
+      "vendor": "Harness",
+      "license": "commercial",
+      "governance": "vendor-owned"
+    },
+    {
+      "slug": "octopus-deploy",
+      "name": "Octopus Deploy",
+      "kind": "tool",
+      "categories": [
+        "cicd"
+      ],
+      "description": "Commercial deployment and release orchestration tool. Octopus also owns Codefresh, an Argo-based GitOps product.",
+      "homepageUrl": "https://octopus.com",
+      "vendor": "Octopus Deploy",
+      "license": "commercial",
+      "governance": "vendor-owned"
+    },
+    {
+      "slug": "cloudbees",
+      "name": "CloudBees",
+      "kind": "platform",
+      "categories": [
+        "cicd"
+      ],
+      "description": "Commercial CI/CD and release orchestration from the company behind enterprise Jenkins.",
+      "homepageUrl": "https://www.cloudbees.com",
+      "vendor": "CloudBees",
+      "license": "commercial",
+      "governance": "vendor-owned"
+    },
+    {
+      "slug": "copado",
+      "name": "Copado",
+      "kind": "tool",
+      "categories": [
+        "app_platforms",
+        "cicd"
+      ],
+      "description": "Commercial DevOps and release management platform for Salesforce.",
+      "homepageUrl": "https://www.copado.com",
+      "vendor": "Copado",
+      "license": "commercial",
+      "governance": "vendor-owned"
+    },
+    {
+      "slug": "gearset",
+      "name": "Gearset",
+      "kind": "tool",
+      "categories": [
+        "app_platforms",
+        "cicd"
+      ],
+      "description": "Commercial DevOps platform for Salesforce: metadata deployments, CI, backups and data seeding.",
+      "homepageUrl": "https://gearset.com",
+      "vendor": "Gearset",
+      "license": "commercial",
+      "governance": "vendor-owned"
     }
   ],
   "alternatives": [
@@ -553,6 +744,41 @@
       "entity": "sap-btp",
       "alternative": "amazon-eks",
       "note": "BTP's Kyma runtime is SAP-managed Kubernetes inside the SAP estate; EKS is general-purpose managed Kubernetes."
+    },
+    {
+      "entity": "kargo",
+      "alternative": "octopus-deploy",
+      "note": "Kargo promotes through environments as Kubernetes resources on top of Argo CD; Octopus orchestrates releases across Kubernetes and non-Kubernetes targets."
+    },
+    {
+      "entity": "flagger",
+      "alternative": "argo-rollouts",
+      "note": "Both automate canary and blue-green releases; Flagger pairs with Flux, Argo Rollouts with Argo CD."
+    },
+    {
+      "entity": "pulumi",
+      "alternative": "opentofu",
+      "note": "Pulumi uses general-purpose languages; OpenTofu uses HCL and stays compatible with Terraform configurations."
+    },
+    {
+      "entity": "kro",
+      "alternative": "crossplane",
+      "note": "Both let platform teams define their own APIs over resources; kro composes Kubernetes resources with no cloud providers of its own, Crossplane brings providers for cloud infrastructure."
+    },
+    {
+      "entity": "copado",
+      "alternative": "gearset",
+      "note": "Both handle Salesforce release management; compare on pipeline model, metadata coverage and price."
+    },
+    {
+      "entity": "gitlab",
+      "alternative": "github-actions",
+      "note": "GitLab bundles CI/CD with its own source control and security scanning; GitHub Actions is CI/CD inside GitHub."
+    },
+    {
+      "entity": "harness",
+      "alternative": "cloudbees",
+      "note": "Both sell enterprise delivery suites; CloudBees grew from Jenkins, Harness from continuous delivery."
     }
   ]
 }

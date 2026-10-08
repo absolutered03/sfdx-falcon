@@ -59,6 +59,9 @@ export const sources = pgTable("sources", {
   // tools (Jenkins, Tekton...) only reach the feed on a new major line or a security
   // fix; everything else is logged on the tool page.
   releasePolicy: text("release_policy").notNull().default("standard"),
+  // Optional regex a release title must match, for repos that publish several
+  // components (open-feature/flagd ships "flagd: v0.17.0" next to "core: v0.18.0").
+  tagPattern: text("tag_pattern"),
   active: boolean("active").notNull().default(true),
   etag: text("etag"),
   lastModified: text("last_modified"),

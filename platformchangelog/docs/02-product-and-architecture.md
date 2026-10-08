@@ -89,8 +89,8 @@ What each guard is for:
 | Route | What it shows | Notes |
 |---|---|---|
 | `/` | Feed of approved items, newest first; category chips; Major only, Releases, Case studies, Postmortems toggles | One sponsored slot after the fifth item, labelled, only when a placement is active |
-| `/tools` | Registry grouped by category | |
-| `/tools/[slug]` | Description, practical notes, release history (summarized and logged), alternatives with one-line notes, case notes and incidents, other coverage | The SEO page. Sponsor sidebar honours conflicts |
+| `/tools` | Registry grouped by category, with each tool's **current version** and its date | A tool is listed only once it has something to show: a known release, an approved entry, or practical notes. Tracked-but-empty tools stay unlisted and their pages return 404 |
+| `/tools/[slug]` | Current version in the header, description, practical notes, release history (summarized and logged), alternatives with one-line notes, case notes and incidents, other coverage | The SEO page. Sponsor sidebar honours conflicts |
 | `/about` | Methodology, impact definitions, sponsorship policy, corrections | Public version of [04](04-editorial-rules.md) |
 | `/admin` | Review queue with editable fields, the "model said out of scope" list to catch false negatives, manual add form | Basic auth in `proxy.ts`, re-checked inside every server action |
 | Digest | `npm run digest` prints Markdown for the newsletter tool | Deliberately not a page in v1 |

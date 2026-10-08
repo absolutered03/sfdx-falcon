@@ -69,6 +69,7 @@ type Triage = { status: "pending_llm" | "out_of_scope" | "logged"; reason: strin
 function triage(s: SourceSeed, it: RawItem): Triage {
   if (s.kind === "github_releases") {
     if (!isProductReleaseTag(it.title)) return { status: "out_of_scope", reason: "component or chart tag" };
+    if (s.tagPattern && !new RegExp(s.tagPattern).test(it.title)) return { status: "out_of_scope", reason: "other component" };
     if (isPrerelease(it.title)) return { status: "out_of_scope", reason: "prerelease tag" };
     const version = extractVersion(it.title);
     const security = mentionsSecurity(it.excerpt);
@@ -122,8 +123,13 @@ async function fetchPhase(db: ReturnType<typeof getDb>) {
         continue;
       }
       const cutoff = s.lastFetchedAt ? 0 : Date.now() - BACKFILL_DAYS * 86_400_000;
-      for (const it of res.items.filter((i) => i.publishedAt.getTime() >= cutoff)) {
-        const t = triage(s, it);
+      for (const it of res.items) {
+        // Older news is skipped on a first fetch, but older releases are kept as logged
+        // history (no LLM call), so every tool shows a current version from day one.
+        const old = it.publishedAt.getTime() < cutoff;
+        if (old && s.kind !== "github_releases") continue;
+        let t = triage(s, it);
+        if (old && t.status === "pending_llm") t = { status: "logged", reason: "release history from before the first fetch" };
         const isRelease = s.kind === "github_releases";
         const [row] = await db
           .insert(schema.items)

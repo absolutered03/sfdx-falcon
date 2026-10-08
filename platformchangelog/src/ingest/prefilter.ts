@@ -17,6 +17,9 @@ const SCOPE_TERMS = [
   "jenkins", "tekton", "salesforce", "agentforce", "platform-as-a-service", "eks",
   "servicenow", "power platform", "power apps", "dataverse", "copilot studio",
   "sap btp", "business technology platform", "kyma",
+  "helm chart", "helm charts", "cluster api", "karpenter", "kargo", "flagger", "openfeature",
+  "feature flag", "feature flags", "release orchestration", "gitlab", "octopus deploy",
+  "codefresh", "cloudbees", "copado", "gearset",
 ];
 
 // Consumer and model-release news is out of scope for v1 even when it mentions agents.
