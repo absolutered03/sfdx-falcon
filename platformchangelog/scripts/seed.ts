@@ -16,7 +16,9 @@ const { entities, alternatives } = JSON.parse(readFileSync("data/entities.json",
   alternatives: { entity: string; alternative: string; note: string }[];
 };
 
-for (const s of sources) {
+for (const raw of sources) {
+  // Keys starting with "_" are human notes in the JSON, not columns.
+  const s = Object.fromEntries(Object.entries(raw).filter(([k]) => !k.startsWith("_"))) as SourceIn;
   await db.insert(schema.sources).values(s).onConflictDoUpdate({
     target: schema.sources.slug,
     set: { ...s, slug: undefined },

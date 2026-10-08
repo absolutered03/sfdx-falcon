@@ -296,7 +296,9 @@
       "deprecated",
       "deprecation",
       "release readiness"
-    ]
+    ],
+    "active": false,
+    "_note": "Disabled 2026-10-08: Akamai bot protection returns 403 to automated clients (our user agent, and Node's client even with browser headers). Not worked around on purpose. Add notable posts by hand."
   },
   {
     "slug": "aws-whats-new",
@@ -325,8 +327,11 @@
       "Control Tower",
       "Service Catalog",
       "Cost Explorer",
-      "Proton"
-    ]
+      "Proton",
+      "Amazon ECS",
+      "CodeDeploy"
+    ],
+    "keywordTitleOnly": true
   },
   {
     "slug": "aws-devops-blog",
@@ -520,5 +525,108 @@
     ],
     "releasePolicy": "major_or_security",
     "tagPattern": "^flagd: "
+  },
+  {
+    "slug": "gitlab-blog",
+    "name": "GitLab Blog",
+    "kind": "rss",
+    "tier": "vendor",
+    "siteUrl": "https://about.gitlab.com/blog/",
+    "feedUrl": "https://about.gitlab.com/atom.xml",
+    "entitySlug": "gitlab",
+    "defaultCategories": [
+      "cicd"
+    ],
+    "keywordFilter": true
+  },
+  {
+    "slug": "harness-blog",
+    "name": "Harness Blog",
+    "kind": "rss",
+    "tier": "vendor",
+    "siteUrl": "https://www.harness.io/blog",
+    "feedUrl": "https://www.harness.io/blog/rss.xml",
+    "entitySlug": "harness",
+    "defaultCategories": [
+      "cicd"
+    ],
+    "keywordFilter": true,
+    "keywordTitleOnly": true
+  },
+  {
+    "slug": "octopus-blog",
+    "name": "Octopus Deploy Blog",
+    "kind": "rss",
+    "tier": "vendor",
+    "siteUrl": "https://octopus.com/blog",
+    "feedUrl": "https://octopus.com/blog/feed.xml",
+    "entitySlug": "octopus-deploy",
+    "defaultCategories": [
+      "cicd"
+    ],
+    "keywordFilter": true
+  },
+  {
+    "slug": "cloudbees-blog",
+    "name": "CloudBees Blog",
+    "kind": "rss",
+    "tier": "vendor",
+    "siteUrl": "https://www.cloudbees.com/blog",
+    "feedUrl": "https://www.cloudbees.com/blog/rss.xml",
+    "entitySlug": "cloudbees",
+    "defaultCategories": [
+      "cicd"
+    ],
+    "keywordFilter": true
+  },
+  {
+    "slug": "gearset-blog",
+    "name": "Gearset Blog",
+    "kind": "rss",
+    "tier": "vendor",
+    "siteUrl": "https://gearset.com/blog/",
+    "feedUrl": "https://gearset.com/rss.xml",
+    "entitySlug": "gearset",
+    "defaultCategories": [
+      "app_platforms",
+      "cicd"
+    ],
+    "keywordFilter": true
+  },
+  {
+    "slug": "servicenow-dev-blog",
+    "name": "ServiceNow Developer Blog",
+    "kind": "rss",
+    "tier": "vendor",
+    "siteUrl": "https://developer.servicenow.com/blog.do",
+    "feedUrl": "https://developer.servicenow.com/blog.do?p=/index.xml",
+    "entitySlug": "servicenow-platform",
+    "defaultCategories": [
+      "app_platforms"
+    ],
+    "keywordFilter": true,
+    "keywordTerms": [
+      "CI/CD",
+      "source control",
+      "Git",
+      "ServiceNow SDK",
+      "Fluent",
+      "Automated Test Framework",
+      "ATF",
+      "upgrade",
+      "scoped app",
+      "update set",
+      "App Engine",
+      "Now Assist",
+      "AI agent",
+      "MCP",
+      "security",
+      "ACL",
+      "GlideRecordSecure",
+      "deprecated",
+      "deprecation",
+      "retirement",
+      "release"
+    ]
   }
 ]

@@ -82,7 +82,7 @@ function triage(s: SourceSeed, it: RawItem): Triage {
     return { status: "pending_llm", reason: "github release" };
   }
   if (!s.keywordFilter) return { status: "pending_llm", reason: "niche source, no prefilter" };
-  const pf = prefilter(it.title, it.excerpt, s.keywordTerms);
+  const pf = prefilter(it.title, s.keywordTitleOnly ? "" : it.excerpt, s.keywordTerms);
   return { status: pf.pass ? "pending_llm" : "out_of_scope", reason: pf.reason };
 }
 

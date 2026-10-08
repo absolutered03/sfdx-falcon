@@ -55,6 +55,10 @@ export const sources = pgTable("sources", {
   // Replaces the global scope terms for this source, e.g. a strict AWS service list,
   // because the provider firehoses would otherwise flood the queue.
   keywordTerms: text("keyword_terms").array(),
+  // Match keywords against the title only. For feeds whose bodies mention everything
+  // (AWS announcements name CloudWatch and CloudFormation in passing) or that publish
+  // SEO-style posts at volume.
+  keywordTitleOnly: boolean("keyword_title_only").notNull().default(false),
   // "standard": every product release is a candidate. "major_or_security": supporting
   // tools (Jenkins, Tekton...) only reach the feed on a new major line or a security
   // fix; everything else is logged on the tool page.

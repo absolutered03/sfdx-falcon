@@ -45,10 +45,14 @@ Already in `data/sources.json`. Feed URLs for the five blogs were fetched and co
 |---|---|---|---|
 | GitHub releases: Flux, OpenTofu, OPA, Argo Rollouts, Salesforce DX MCP Server | primary / vendor | every product release is a candidate | ✅ feeds parsed 2026-10-08 |
 | GitHub releases: Jenkins, Tekton, Argo Workflows, Salesforce CLI | primary / vendor | **light coverage** (`release_policy = major_or_security`): only a new major line or a security fix reaches the feed; everything else is logged on the tool page | ✅ 2026-10-08: 31 releases in 30 days, 1 to the feed (a Tekton security fix) |
-| Jenkins security advisories RSS | primary | all items | ⚠️ blocked in the build sandbox; check on day 1 |
-| Salesforce Developers Blog | vendor | strict Salesforce platform-team term list (`keyword_terms`) | ⚠️ blocked in the build sandbox |
-| What's New with AWS | vendor | strict AWS service term list (EKS, CodePipeline, CloudFormation, CDK, Q Developer, DevOps Agent, AgentCore, ECR, CloudWatch, Control Tower...) | ⚠️ blocked; **expect high volume, watch the prefilter pass rate in week 1** |
-| AWS DevOps Blog, AWS Containers Blog | vendor | general keyword filter | ⚠️ blocked in the build sandbox |
+| Jenkins security advisories RSS | primary | all items | ⚠️ proxy still rejects `www.jenkins.io`; allowlist needs the `www.` host |
+| Salesforce Developers Blog | vendor | **disabled** | ❌ 2026-10-08: Akamai bot protection returns 403 to automated clients, including Node's client with browser headers. Not worked around on purpose; add notable posts by hand |
+| What's New with AWS | vendor | strict AWS service list, **matched on titles only** | ✅ 2026-10-08: ~250 announcements a month; title matching passes ~28 (body matching passed ~60, many incidental CloudWatch and CloudFormation mentions) |
+| AWS DevOps Blog, AWS Containers Blog | vendor | general keyword filter | ✅ 2026-10-08: ~10 posts a month each, nearly all pass |
+| GitLab, Octopus, CloudBees, Gearset blogs | vendor | general keyword filter | ✅ 2026-10-08: 20, 5, 6 and 4 a month reach the LLM |
+| Harness blog | vendor | general keywords, **titles only** | ✅ 2026-10-08: 43 posts a month, many near-duplicate SEO articles; 12 reach the LLM |
+| ServiceNow Developer Blog | vendor | platform-team term list | ✅ feed works; low frequency (nothing in the last 30 days) |
+| Copado | - | none | no feed found; media coverage only |
 | GitHub releases: ServiceNow SDK, Power Platform Build Tools and GitHub Actions | vendor | light coverage | ✅ 2026-10-08 |
 | GitHub releases: Terraform Provider for SAP BTP | vendor | every release (monthly; the Kubernetes and IaC crossover) | ✅ 2026-10-08 |
 | Microsoft Power Platform Blog | vendor | strict ALM and governance term list | ✅ 2026-10-08: ~8 posts a month, 5 of 6 recent passed |
@@ -70,6 +74,8 @@ New category: **Enterprise app platforms** (`app_platforms`), Salesforce first: 
 | 5 | Add an RSS feed of approved items. (`sitemap.xml`, `robots.txt` and OpenGraph tags are already built.) Submit the sitemap in Google Search Console and Bing Webmaster Tools. | Search Console shows the sitemap read with 19+ URLs |
 | 6 | `npm run digest`, write the intro and reader question, set it up in Buttondown. Read the whole site once on a phone. | Digest #1 ready to send |
 | 7 | Soft launch: one LinkedIn post about why a vendor-neutral registry for this niche is needed, link in the first comment. Send digest #1 to whoever subscribed. | First 25 subscribers is a fine day-7 number |
+
+> **Vendor share warning.** The vendor feeds queue roughly 90 items a month before the LLM, more than the community and media feeds combined. The weekly vendor-share check in [04](04-editorial-rules.md) is what keeps the feed from tilting toward vendor news; tighten a vendor's terms before adding more vendors.
 
 ## Backfill (decided 2026-10-08)
 
