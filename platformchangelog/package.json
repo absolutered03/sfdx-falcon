@@ -11,7 +11,8 @@
     "seed": "tsx scripts/seed.ts",
     "ingest": "tsx scripts/ingest.ts",
     "ingest:dry": "tsx scripts/ingest.ts --dry-run",
-    "digest": "tsx scripts/digest.ts"
+    "digest": "tsx scripts/digest.ts",
+    "compare": "tsx scripts/compare-models.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",

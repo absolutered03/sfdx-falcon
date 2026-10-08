@@ -64,15 +64,25 @@ export interface SummarizeInput {
   entitySlugs: string[]; // the allow-list
 }
 
+export interface Usage {
+  inputTokens: number;
+  outputTokens: number;
+}
+
 export type SummarizeResult =
-  | { ok: true; data: ItemSummary; model: string }
-  | { ok: false; reason: string; model: string };
+  | { ok: true; data: ItemSummary; model: string; usage: Usage }
+  | { ok: false; reason: string; model: string; usage: Usage };
+
+export interface SummarizeOptions {
+  model?: string; // defaults to LLM_MODEL, then claude-opus-5-5
+  effort?: "low" | "medium" | "high";
+}
 
 const client = new Anthropic(); // resolves ANTHROPIC_API_KEY from the environment
 
-export async function summarizeItem(input: SummarizeInput): Promise<SummarizeResult> {
-  const model = process.env.LLM_MODEL ?? "claude-opus-5-5";
-  const effort = (process.env.LLM_EFFORT ?? "low") as "low" | "medium" | "high";
+export async function summarizeItem(input: SummarizeInput, opts: SummarizeOptions = {}): Promise<SummarizeResult> {
+  const model = opts.model ?? process.env.LLM_MODEL ?? "claude-opus-5-5";
+  const effort = opts.effort ?? ((process.env.LLM_EFFORT ?? "low") as "low" | "medium" | "high");
 
   const user = [
     `Title: ${input.title}`,
@@ -106,16 +116,19 @@ export async function summarizeItem(input: SummarizeInput): Promise<SummarizeRes
         output_config: { effort, format: zodOutputFormat(ItemSummary) },
       });
 
-  if (response.stop_reason === "refusal") return { ok: false, reason: "llm refused", model: response.model };
-  if (response.stop_reason === "max_tokens") return { ok: false, reason: "llm hit max_tokens", model: response.model };
+  const usage = { inputTokens: response.usage.input_tokens, outputTokens: response.usage.output_tokens };
+  const fail = (reason: string) => ({ ok: false as const, reason, model: response.model, usage });
+  if (response.stop_reason === "refusal") return fail("llm refused");
+  if (response.stop_reason === "max_tokens") return fail("llm hit max_tokens");
   const data = response.parsed_output;
-  if (!data) return { ok: false, reason: "llm output failed schema validation", model: response.model };
+  if (!data) return fail("llm output failed schema validation");
 
   // Enforce the allow-list in code as well as in the prompt.
   const allowed = new Set(input.entitySlugs);
   return {
     ok: true,
     model: response.model,
+    usage,
     data: { ...data, entity_slugs: data.entity_slugs.filter((s) => allowed.has(s)) },
   };
 }

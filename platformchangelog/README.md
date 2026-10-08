@@ -37,6 +37,7 @@ npm run ingest:dry              # fetch + triage only: no DB, no LLM
 npm run ingest                  # fetch, store, draft up to MAX_LLM_CALLS_PER_RUN
 npm run dev                     # http://localhost:3000, review at /admin
 npm run digest > digest.md      # weekly outline
+npm run compare                 # opus 5.5 vs haiku 4.5 on 12 real items, read-only -> reports/
 ```
 
 ## Layout
