@@ -39,6 +39,19 @@ Already in `data/sources.json`. Feed URLs for the five blogs were fetched and co
 
 > **Do not use `feed.infoq.com/devops/`.** It returns valid RSS but its newest items are from May 2022. The main InfoQ feed plus the keyword filter covers it.
 
+### Added 2026-10-08: supporting tools, enterprise platforms, AWS
+
+| Source | Tier | Policy | Verified |
+|---|---|---|---|
+| GitHub releases: Flux, OpenTofu, OPA, Argo Rollouts, Salesforce DX MCP Server | primary / vendor | every product release is a candidate | ✅ feeds parsed 2026-10-08 |
+| GitHub releases: Jenkins, Tekton, Argo Workflows, Salesforce CLI | primary / vendor | **light coverage** (`release_policy = major_or_security`): only a new major line or a security fix reaches the feed; everything else is logged on the tool page | ✅ 2026-10-08: 31 releases in 30 days, 1 to the feed (a Tekton security fix) |
+| Jenkins security advisories RSS | primary | all items | ⚠️ blocked in the build sandbox; check on day 1 |
+| Salesforce Developers Blog | vendor | strict Salesforce platform-team term list (`keyword_terms`) | ⚠️ blocked in the build sandbox |
+| What's New with AWS | vendor | strict AWS service term list (EKS, CodePipeline, CloudFormation, CDK, Q Developer, DevOps Agent, AgentCore, ECR, CloudWatch, Control Tower...) | ⚠️ blocked; **expect high volume, watch the prefilter pass rate in week 1** |
+| AWS DevOps Blog, AWS Containers Blog | vendor | general keyword filter | ⚠️ blocked in the build sandbox |
+
+New category: **Enterprise app platforms** (`app_platforms`), Salesforce first: platform-team concerns only (release governance, DevOps tooling, APIs and integration, permission and security model changes, agents such as Agentforce), not end-user feature marketing. ServiceNow and Microsoft Power Platform are the obvious next additions.
+
 **Not ingested, on purpose:** Platform Weekly and other newsletters are competitors and aggregators, so read them for discovery and add what you find by hand from the primary source. Annual reports (DORA, Puppet, State of Platform Engineering) are manual adds when they drop.
 
 **Add in week 2, after verifying each feed URL:** Backstage blog, Humanitec engineering blog, Flux, Open Policy Agent, OpenTofu, Argo Rollouts releases, and two or three companies' engineering blogs that publish real platform postmortems.

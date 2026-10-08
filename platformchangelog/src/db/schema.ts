@@ -52,6 +52,13 @@ export const sources = pgTable("sources", {
   entitySlug: text("entity_slug"), // a release feed belongs to exactly one entity
   defaultCategories: categories("default_categories"),
   keywordFilter: boolean("keyword_filter").notNull().default(false), // broad feeds only
+  // Replaces the global scope terms for this source, e.g. a strict AWS service list,
+  // because the provider firehoses would otherwise flood the queue.
+  keywordTerms: text("keyword_terms").array(),
+  // "standard": every product release is a candidate. "major_or_security": supporting
+  // tools (Jenkins, Tekton...) only reach the feed on a new major line or a security
+  // fix; everything else is logged on the tool page.
+  releasePolicy: text("release_policy").notNull().default("standard"),
   active: boolean("active").notNull().default(true),
   etag: text("etag"),
   lastModified: text("last_modified"),

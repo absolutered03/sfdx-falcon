@@ -26,7 +26,9 @@
     "tier": "community",
     "siteUrl": "https://platformengineering.org/blog",
     "feedUrl": "https://platformengineering.org/blog/rss.xml",
-    "defaultCategories": ["idp"],
+    "defaultCategories": [
+      "idp"
+    ],
     "keywordFilter": false
   },
   {
@@ -56,7 +58,9 @@
     "tier": "primary",
     "githubRepo": "backstage/backstage",
     "entitySlug": "backstage",
-    "defaultCategories": ["idp"]
+    "defaultCategories": [
+      "idp"
+    ]
   },
   {
     "slug": "gh-argo-cd",
@@ -65,7 +69,9 @@
     "tier": "primary",
     "githubRepo": "argoproj/argo-cd",
     "entitySlug": "argo-cd",
-    "defaultCategories": ["cicd"]
+    "defaultCategories": [
+      "cicd"
+    ]
   },
   {
     "slug": "gh-crossplane",
@@ -74,7 +80,9 @@
     "tier": "primary",
     "githubRepo": "crossplane/crossplane",
     "entitySlug": "crossplane",
-    "defaultCategories": ["idp"]
+    "defaultCategories": [
+      "idp"
+    ]
   },
   {
     "slug": "gh-kyverno",
@@ -83,7 +91,10 @@
     "tier": "primary",
     "githubRepo": "kyverno/kyverno",
     "entitySlug": "kyverno",
-    "defaultCategories": ["cost_governance", "supply_chain"]
+    "defaultCategories": [
+      "cost_governance",
+      "supply_chain"
+    ]
   },
   {
     "slug": "gh-kubernetes-mcp-server",
@@ -92,7 +103,9 @@
     "tier": "primary",
     "githubRepo": "containers/kubernetes-mcp-server",
     "entitySlug": "kubernetes-mcp-server",
-    "defaultCategories": ["ai_agents"]
+    "defaultCategories": [
+      "ai_agents"
+    ]
   },
   {
     "slug": "gh-terraform-mcp-server",
@@ -101,7 +114,9 @@
     "tier": "vendor",
     "githubRepo": "hashicorp/terraform-mcp-server",
     "entitySlug": "terraform-mcp-server",
-    "defaultCategories": ["ai_agents"]
+    "defaultCategories": [
+      "ai_agents"
+    ]
   },
   {
     "slug": "gh-kagent",
@@ -110,7 +125,9 @@
     "tier": "primary",
     "githubRepo": "kagent-dev/kagent",
     "entitySlug": "kagent",
-    "defaultCategories": ["ai_agents"]
+    "defaultCategories": [
+      "ai_agents"
+    ]
   },
   {
     "slug": "gh-k8sgpt",
@@ -119,6 +136,218 @@
     "tier": "primary",
     "githubRepo": "k8sgpt-ai/k8sgpt",
     "entitySlug": "k8sgpt",
-    "defaultCategories": ["ai_agents", "observability"]
+    "defaultCategories": [
+      "ai_agents",
+      "observability"
+    ]
+  },
+  {
+    "slug": "gh-flux",
+    "name": "Flux releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "fluxcd/flux2",
+    "entitySlug": "flux",
+    "defaultCategories": [
+      "cicd"
+    ],
+    "releasePolicy": "standard"
+  },
+  {
+    "slug": "gh-opentofu",
+    "name": "OpenTofu releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "opentofu/opentofu",
+    "entitySlug": "opentofu",
+    "defaultCategories": [
+      "idp"
+    ],
+    "releasePolicy": "standard"
+  },
+  {
+    "slug": "gh-opa",
+    "name": "Open Policy Agent releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "open-policy-agent/opa",
+    "entitySlug": "opa",
+    "defaultCategories": [
+      "cost_governance"
+    ],
+    "releasePolicy": "standard"
+  },
+  {
+    "slug": "gh-argo-rollouts",
+    "name": "Argo Rollouts releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "argoproj/argo-rollouts",
+    "entitySlug": "argo-rollouts",
+    "defaultCategories": [
+      "cicd"
+    ],
+    "releasePolicy": "standard"
+  },
+  {
+    "slug": "gh-argo-workflows",
+    "name": "Argo Workflows releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "argoproj/argo-workflows",
+    "entitySlug": "argo-workflows",
+    "defaultCategories": [
+      "cicd"
+    ],
+    "releasePolicy": "major_or_security"
+  },
+  {
+    "slug": "gh-tekton",
+    "name": "Tekton Pipelines releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "tektoncd/pipeline",
+    "entitySlug": "tekton",
+    "defaultCategories": [
+      "cicd"
+    ],
+    "releasePolicy": "major_or_security"
+  },
+  {
+    "slug": "gh-jenkins",
+    "name": "Jenkins releases",
+    "kind": "github_releases",
+    "tier": "primary",
+    "githubRepo": "jenkinsci/jenkins",
+    "entitySlug": "jenkins",
+    "defaultCategories": [
+      "cicd"
+    ],
+    "releasePolicy": "major_or_security"
+  },
+  {
+    "slug": "jenkins-security",
+    "name": "Jenkins security advisories",
+    "kind": "rss",
+    "tier": "primary",
+    "siteUrl": "https://www.jenkins.io/security/advisories/",
+    "feedUrl": "https://www.jenkins.io/security/advisories/rss.xml",
+    "defaultCategories": [
+      "supply_chain",
+      "cicd"
+    ],
+    "keywordFilter": false
+  },
+  {
+    "slug": "gh-salesforce-cli",
+    "name": "Salesforce CLI releases",
+    "kind": "github_releases",
+    "tier": "vendor",
+    "githubRepo": "salesforcecli/cli",
+    "entitySlug": "salesforce-cli",
+    "defaultCategories": [
+      "app_platforms"
+    ],
+    "releasePolicy": "major_or_security"
+  },
+  {
+    "slug": "gh-salesforce-dx-mcp",
+    "name": "Salesforce DX MCP Server releases",
+    "kind": "github_releases",
+    "tier": "vendor",
+    "githubRepo": "salesforcecli/mcp",
+    "entitySlug": "salesforce-dx-mcp",
+    "defaultCategories": [
+      "ai_agents",
+      "app_platforms"
+    ],
+    "releasePolicy": "standard"
+  },
+  {
+    "slug": "salesforce-developers-blog",
+    "name": "Salesforce Developers Blog",
+    "kind": "rss",
+    "tier": "vendor",
+    "siteUrl": "https://developer.salesforce.com/blogs",
+    "feedUrl": "https://developer.salesforce.com/blogs/feed",
+    "defaultCategories": [
+      "app_platforms"
+    ],
+    "keywordFilter": true,
+    "keywordTerms": [
+      "DevOps Center",
+      "Salesforce CLI",
+      "sf CLI",
+      "SFDX",
+      "Salesforce DX",
+      "Metadata API",
+      "scratch org",
+      "sandbox",
+      "unlocked package",
+      "second-generation",
+      "2GP",
+      "Agentforce",
+      "MCP",
+      "Einstein Trust Layer",
+      "permission set",
+      "Shield",
+      "API version",
+      "retirement",
+      "deprecated",
+      "deprecation",
+      "release readiness"
+    ]
+  },
+  {
+    "slug": "aws-whats-new",
+    "name": "What's New with AWS",
+    "kind": "rss",
+    "tier": "vendor",
+    "siteUrl": "https://aws.amazon.com/new/",
+    "feedUrl": "https://aws.amazon.com/about-aws/whats-new/recent/feed/",
+    "defaultCategories": [],
+    "keywordFilter": true,
+    "keywordTerms": [
+      "Amazon EKS",
+      "EKS",
+      "CodePipeline",
+      "CodeBuild",
+      "CodeCatalyst",
+      "CodeConnections",
+      "CloudFormation",
+      "AWS CDK",
+      "Amazon Q Developer",
+      "DevOps Agent",
+      "AgentCore",
+      "Amazon ECR",
+      "CloudWatch",
+      "X-Ray",
+      "Control Tower",
+      "Service Catalog",
+      "Cost Explorer",
+      "Proton"
+    ]
+  },
+  {
+    "slug": "aws-devops-blog",
+    "name": "AWS DevOps Blog",
+    "kind": "rss",
+    "tier": "vendor",
+    "siteUrl": "https://aws.amazon.com/blogs/devops/",
+    "feedUrl": "https://aws.amazon.com/blogs/devops/feed/",
+    "defaultCategories": [
+      "cicd"
+    ],
+    "keywordFilter": true
+  },
+  {
+    "slug": "aws-containers-blog",
+    "name": "AWS Containers Blog",
+    "kind": "rss",
+    "tier": "vendor",
+    "siteUrl": "https://aws.amazon.com/blogs/containers/",
+    "feedUrl": "https://aws.amazon.com/blogs/containers/feed/",
+    "defaultCategories": [],
+    "keywordFilter": true
   }
 ]

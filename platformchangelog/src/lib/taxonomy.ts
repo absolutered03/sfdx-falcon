@@ -9,6 +9,7 @@ export const CATEGORIES = [
   "supply_chain",
   "cost_governance", // cost, permissions, policy, governance of agents on platform APIs
   "reports", // surveys, benchmarks, DX / agent-experience measurement
+  "app_platforms", // enterprise PaaS (Salesforce first): DevOps, governance and agents on the platform
 ] as const;
 export type Category = (typeof CATEGORIES)[number];
 
@@ -20,6 +21,7 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   supply_chain: "Supply chain",
   cost_governance: "Cost & governance",
   reports: "Reports & DX data",
+  app_platforms: "Enterprise app platforms",
 };
 
 export const ITEM_KINDS = [

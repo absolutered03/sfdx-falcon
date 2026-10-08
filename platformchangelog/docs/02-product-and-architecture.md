@@ -13,7 +13,7 @@
 2. A **rolling feed** of what shipped, each entry tagged by category and impact, summarized in plain English with a separate "for platform teams" line.
 3. A **weekly digest** assembled from the week's approved entries, with a hand-written intro.
 4. **Software drafts, a person publishes.** Ingestion only extracts and drafts; nothing is public until it is approved in `/admin`.
-5. **Scope is narrow on purpose**: IDPs and portals, AI agents operating on the platform, CI/CD, observability, supply chain, cost and governance, and DX data. No model releases, no consumer AI.
+5. **Scope is narrow on purpose**: IDPs and portals, AI agents operating on the platform, CI/CD, observability, supply chain, cost and governance, DX data, and (added 2026-10-08) enterprise app platforms such as Salesforce plus cloud provider announcements that touch the space, AWS first. No model releases, no consumer AI.
 6. **Sponsorship is designed in, not bolted on**: a typed placement with its own slot, label and conflict rules.
 7. Public, read-only, no accounts. One basic-auth admin path.
 
@@ -47,7 +47,7 @@ erDiagram
 
 | Table | Holds | Key decisions |
 |---|---|---|
-| `sources` | The allow-list: RSS/Atom feeds and GitHub repos | `tier` (primary, community, media, vendor) drives editorial weight. `keyword_filter` turns on the prefilter for broad feeds. ETag and Last-Modified stored for polite polling. |
+| `sources` | The allow-list: RSS/Atom feeds and GitHub repos | `tier` (primary, community, media, vendor) drives editorial weight. `keyword_filter` turns on the prefilter for broad feeds; `keyword_terms` replaces the global term list for a firehose source such as AWS. `release_policy = major_or_security` gives supporting tools light coverage. ETag and Last-Modified stored for polite polling. |
 | `entities` | The registry | `description` and `practical_notes` are human-written; the seed never overwrites notes. |
 | `entity_alternatives` | One-line comparisons | Stored in both directions so either page shows it. |
 | `items` | Every fetched URL, in every state | **Release history and case notes are not separate tables**: they are items filtered by `kind` and linked through `item_entities`. One row per canonical URL is the dedupe. `llm_raw` keeps the full model output for audit. |

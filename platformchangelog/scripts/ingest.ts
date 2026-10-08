@@ -17,6 +17,7 @@ import { getDb, schema } from "../src/db/client";
 import {
   EXCERPT_LIMIT,
   extractVersion,
+  isMajorRelease,
   isPatchRelease,
   isPrerelease,
   isProductReleaseTag,
@@ -69,13 +70,18 @@ function triage(s: SourceSeed, it: RawItem): Triage {
   if (s.kind === "github_releases") {
     if (!isProductReleaseTag(it.title)) return { status: "out_of_scope", reason: "component or chart tag" };
     if (isPrerelease(it.title)) return { status: "out_of_scope", reason: "prerelease tag" };
-    if (isPatchRelease(extractVersion(it.title)) && !mentionsSecurity(it.excerpt)) {
+    const version = extractVersion(it.title);
+    const security = mentionsSecurity(it.excerpt);
+    if (s.releasePolicy === "major_or_security" && !security && !isMajorRelease(version)) {
+      return { status: "logged", reason: "supporting tool: not a major or security release" };
+    }
+    if (isPatchRelease(version) && !security) {
       return { status: "logged", reason: "routine patch release" };
     }
     return { status: "pending_llm", reason: "github release" };
   }
   if (!s.keywordFilter) return { status: "pending_llm", reason: "niche source, no prefilter" };
-  const pf = prefilter(it.title, it.excerpt);
+  const pf = prefilter(it.title, it.excerpt, s.keywordTerms);
   return { status: pf.pass ? "pending_llm" : "out_of_scope", reason: pf.reason };
 }
 

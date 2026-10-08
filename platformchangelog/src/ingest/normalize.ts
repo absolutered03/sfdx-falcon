@@ -117,9 +117,14 @@ export function parseFeed(xml: string): RawItem[] {
 export const isPrerelease = (title: string) =>
   /-(rc|alpha|beta|pre|preview|next|canary|nightly|dev)[.\d]*\b/i.test(title) || /\bnightly\b/i.test(title);
 
-// "v2.4.2" or "v3.5.4: Bump version" is a product release; "apis/v2.4.2" or
-// "kyverno-chart-3.9.1" is a component tag.
-export const isProductReleaseTag = (title: string) => /^v?\d+\.\d+/.test(title.trim());
+// "v2.4.2", "v3.5.4: Bump version" and "Tekton Pipeline release v1.1.2" are product
+// releases; "apis/v2.4.2", "kyverno-chart-3.9.1" and an unversioned "stable" are not.
+export const isProductReleaseTag = (title: string) =>
+  /\bv?\d+\.\d+/.test(title) && !/[\w-]+\/v?\d/.test(title) && !/chart/i.test(title);
+
+// A new major line: v3.0.0, 2.0, v4.0.0 "Name". Used by sources on the
+// major_or_security release policy.
+export const isMajorRelease = (version: string | null) => !!version && /^v?\d+\.0(\.0)?$/.test(version);
 
 export const extractVersion = (title: string) => title.match(/v?\d+\.\d+(\.\d+)?/)?.[0] ?? null;
 
