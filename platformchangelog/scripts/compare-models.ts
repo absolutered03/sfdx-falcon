@@ -4,6 +4,9 @@
 //   npm run compare                                  # opus 5.5 vs haiku 4.5, 12 items
 //   npm run compare -- --limit 20 --include-out-of-scope
 //   npm run compare -- --models claude-opus-5-5,claude-sonnet-5-5
+//   npm run compare -- --cli --models claude-opus-5-5,claude-haiku-5-5
+//       --cli runs through the local Claude Code CLI on your subscription (no API key);
+//       for evaluation only, never for the ingest job.
 //
 // Writes reports/compare-<timestamp>.md: cost, latency and failure rates per model,
 // agreement between models, and every draft side by side for you to judge. The
@@ -14,11 +17,15 @@ import { desc, eq, inArray, sql } from "drizzle-orm";
 import { getDb, schema } from "../src/db/client";
 import { EXCERPT_LIMIT } from "../src/ingest/normalize";
 import { summarizeItem, type SummarizeResult } from "../src/ingest/summarize";
+import { summarizeItemViaCli } from "../src/ingest/summarize-cli";
 
-// $ per million tokens, input / output. Anthropic list prices as of 2026-09-25.
+// $ per million tokens, input / output, base rates with no caching or batch discount.
+// From platform.claude.com/docs/en/about-claude/pricing, checked 2026-10-08.
+// Haiku 5.5 is the under-100k-token-prompt rate; every item here is far below that.
 const PRICES: Record<string, [number, number]> = {
   "claude-opus-5-5": [4, 20],
   "claude-sonnet-5-5": [2, 10],
+  "claude-haiku-5-5": [0.1, 0.5],
   "claude-haiku-4-5": [1, 5],
 };
 
@@ -29,6 +36,8 @@ const arg = (name: string) => {
 const MODELS = (arg("models") ?? "claude-opus-5-5,claude-haiku-4-5").split(",");
 const LIMIT = Number(arg("limit") ?? 12);
 const INCLUDE_OOS = process.argv.includes("--include-out-of-scope");
+const USE_CLI = process.argv.includes("--cli");
+const summarize = USE_CLI ? summarizeItemViaCli : summarizeItem;
 
 for (const m of MODELS) if (!PRICES[m]) throw new Error(`No price for ${m}; add it to PRICES`);
 
@@ -67,7 +76,7 @@ interface Run {
 }
 const runs: Run[][] = []; // runs[itemIndex][modelIndex]
 
-console.log(`Comparing ${MODELS.join(" vs ")} on ${sample.length} items...`);
+console.log(`Comparing ${MODELS.join(" vs ")} on ${sample.length} items via ${USE_CLI ? "Claude Code CLI (subscription)" : "API"}...`);
 for (const [i, { item, source }] of sample.entries()) {
   const input = {
     title: item.title,
@@ -84,7 +93,7 @@ for (const [i, { item, source }] of sample.entries()) {
   for (const model of MODELS) {
     const t0 = Date.now();
     try {
-      runs[i].push({ result: await summarizeItem(input, { model }), ms: Date.now() - t0 });
+      runs[i].push({ result: await summarize(input, { model }), ms: Date.now() - t0 });
     } catch (e) {
       runs[i].push({ result: { ok: false, reason: `error: ${(e as Error).message}`, model, usage: { inputTokens: 0, outputTokens: 0 } }, ms: Date.now() - t0 });
     }
@@ -137,9 +146,12 @@ const $ = (n: number) => `$${n.toFixed(n < 0.1 ? 4 : 2)}`;
 const out: string[] = [
   `# Model comparison: ${MODELS.join(" vs ")}`,
   "",
-  `Run ${new Date().toISOString()} on ${sample.length} items (${[...new Set(sample.map((s) => s.source?.slug ?? "manual"))].join(", ")}).`,
+  `Run ${new Date().toISOString()} via ${USE_CLI ? "the Claude Code CLI on a subscription" : "the API"} on ${sample.length} items (${[...new Set(sample.map((s) => s.source?.slug ?? "manual"))].join(", ")}).`,
   "",
   "## Cost, speed, reliability",
+  "",
+  "Cost is an API estimate: measured tokens x list price, no caching or batch discount." +
+    (USE_CLI ? " Run via the CLI, so nothing was billed per token, and input counts include a small fixed CLI preamble (a slight overestimate)." : ""),
   "",
   "| Model | OK | Failed | Avg in / out tokens | p50 latency | Cost this run | Per item | At 50 items/day, 30 days |",
   "|---|---|---|---|---|---|---|---|",

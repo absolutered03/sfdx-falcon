@@ -32,7 +32,7 @@ export const ItemSummary = z.object({
 });
 export type ItemSummary = z.infer<typeof ItemSummary>;
 
-const SYSTEM = `You draft entries for a vendor-neutral news site for platform engineering, developer experience and DevOps teams. A human editor reviews every draft before anything is published.
+export const SYSTEM = `You draft entries for a vendor-neutral news site for platform engineering, developer experience and DevOps teams. A human editor reviews every draft before anything is published.
 
 Scope (in_scope = true only if the item is mainly about one of these):
 - internal developer platforms and portals, golden paths, self-service, scorecards, service catalogs
@@ -67,6 +67,7 @@ export interface SummarizeInput {
 export interface Usage {
   inputTokens: number;
   outputTokens: number;
+  costUsd?: number; // set when the backend reports its own list-price cost (CLI)
 }
 
 export type SummarizeResult =
@@ -78,13 +79,9 @@ export interface SummarizeOptions {
   effort?: "low" | "medium" | "high";
 }
 
-const client = new Anthropic(); // resolves ANTHROPIC_API_KEY from the environment
-
-export async function summarizeItem(input: SummarizeInput, opts: SummarizeOptions = {}): Promise<SummarizeResult> {
-  const model = opts.model ?? process.env.LLM_MODEL ?? "claude-opus-5-5";
-  const effort = opts.effort ?? ((process.env.LLM_EFFORT ?? "low") as "low" | "medium" | "high");
-
-  const user = [
+/** The user turn: metadata, the entity allow-list, and the source text marked as data. */
+export function buildUserPrompt(input: SummarizeInput): string {
+  return [
     `Title: ${input.title}`,
     `Source: ${input.sourceName} (tier: ${input.sourceTier})`,
     `Published: ${input.publishedAt.toISOString().slice(0, 10)}`,
@@ -96,6 +93,21 @@ export async function summarizeItem(input: SummarizeInput, opts: SummarizeOption
     input.excerpt,
     "</source_text>",
   ].join("\n");
+}
+
+/** Code-side allow-list enforcement, shared by every backend. */
+export function enforceAllowList(data: ItemSummary, entitySlugs: string[]): ItemSummary {
+  const allowed = new Set(entitySlugs);
+  return { ...data, entity_slugs: data.entity_slugs.filter((s) => allowed.has(s)) };
+}
+
+const client = new Anthropic(); // resolves ANTHROPIC_API_KEY from the environment
+
+export async function summarizeItem(input: SummarizeInput, opts: SummarizeOptions = {}): Promise<SummarizeResult> {
+  const model = opts.model ?? process.env.LLM_MODEL ?? "claude-opus-5-5";
+  const effort = opts.effort ?? ((process.env.LLM_EFFORT ?? "low") as "low" | "medium" | "high");
+
+  const user = buildUserPrompt(input);
 
   const request = {
     model,
@@ -123,12 +135,5 @@ export async function summarizeItem(input: SummarizeInput, opts: SummarizeOption
   const data = response.parsed_output;
   if (!data) return fail("llm output failed schema validation");
 
-  // Enforce the allow-list in code as well as in the prompt.
-  const allowed = new Set(input.entitySlugs);
-  return {
-    ok: true,
-    model: response.model,
-    usage,
-    data: { ...data, entity_slugs: data.entity_slugs.filter((s) => allowed.has(s)) },
-  };
+  return { ok: true, model: response.model, usage, data: enforceAllowList(data, input.entitySlugs) };
 }
