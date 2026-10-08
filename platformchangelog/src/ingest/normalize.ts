@@ -131,4 +131,15 @@ export const extractVersion = (title: string) => title.match(/v?\d+\.\d+(\.\d+)?
 // x.y.z with z > 0. Patch releases skip the LLM unless the notes look security-relevant.
 export const isPatchRelease = (version: string | null) => !!version && /^v?\d+\.\d+\.[1-9]\d*$/.test(version);
 
+/** Numeric version compare: v3.10.0 > v3.9.4, 2.585 > 2.580.1. */
+export function compareVersions(a: string, b: string): number {
+  const pa = a.replace(/^v/i, "").split(".").map(Number);
+  const pb = b.replace(/^v/i, "").split(".").map(Number);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const d = (pa[i] ?? 0) - (pb[i] ?? 0);
+    if (d) return d;
+  }
+  return 0;
+}
+
 export const mentionsSecurity = (text: string) => /\bCVE-\d{4}-\d+|\bsecurity\b|vulnerab|\bGHSA-/i.test(text);

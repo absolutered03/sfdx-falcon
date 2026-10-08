@@ -26,9 +26,8 @@ import {
   type RawItem,
 } from "../src/ingest/normalize";
 import { prefilter } from "../src/ingest/prefilter";
-import { summarizeItem } from "../src/ingest/summarize";
+import { draftItem } from "../src/ingest/draft";
 import { SITE_URL } from "../src/lib/site";
-import type { Category } from "../src/lib/taxonomy";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 const MAX_LLM_CALLS = Number(process.env.MAX_LLM_CALLS_PER_RUN ?? 40);
@@ -183,57 +182,20 @@ async function summarizePhase(db: ReturnType<typeof getDb>) {
   let calls = 0, drafted = 0, rejected = 0, failed = 0, consecutiveErrors = 0;
   for (const { item, source } of queue) {
     calls++;
-    try {
-      const r = await summarizeItem({
-        title: item.title,
-        sourceName: source?.name ?? "manual",
-        sourceTier: source?.tier ?? "manual",
-        url: item.url,
-        publishedAt: item.publishedAt,
-        excerpt: item.excerpt,
-        truncated: item.excerpt.length >= EXCERPT_LIMIT,
-        defaultCategories: source?.defaultCategories ?? [],
-        entitySlugs: [...entityId.keys()],
-      });
-      consecutiveErrors = 0;
-
-      if (!r.ok) {
-        // Still goes to a human, flagged, with no generated text.
-        failed++;
-        await db.update(schema.items)
-          .set({ status: "draft", statusReason: r.reason, llmModel: r.model, flags: ["llm_failed"] })
-          .where(eq(schema.items.id, item.id));
-        continue;
-      }
-
-      const d = r.data;
-      await db.update(schema.items)
-        .set({
-          status: d.in_scope ? "draft" : "out_of_scope",
-          statusReason: `llm: ${d.scope_reason}`,
-          kind: item.kind === "release" ? "release" : (d.kind as typeof item.kind),
-          version: d.version ?? item.version,
-          categories: [...new Set([...item.categories, ...d.categories])] as Category[],
-          impact: d.impact,
-          summary: d.summary,
-          platformImpact: d.platform_impact,
-          flags: d.flags,
-          llmModel: r.model,
-          llmRaw: d,
-        })
-        .where(eq(schema.items.id, item.id));
-      const ids = d.entity_slugs.map((s) => entityId.get(s)).filter((x): x is number => x !== undefined);
-      if (ids.length) await db.insert(schema.itemEntities).values(ids.map((entityId) => ({ itemId: item.id, entityId }))).onConflictDoNothing();
-      if (d.in_scope) drafted++;
-      else rejected++;
-    } catch (e) {
-      // API/network error: leave it pending for the next run. Stop early if the provider is down.
-      console.error(`[item ${item.id}] ${(e as Error).message}`);
+    const r = await draftItem(db, item, source, entityId);
+    if (r.outcome === "error") {
+      // Left pending for the next run. Stop early if the provider is down.
+      console.error(`[item ${item.id}] ${r.message}`);
       if (++consecutiveErrors >= 3) {
         console.error("3 consecutive LLM errors, stopping summarize phase");
         break;
       }
+      continue;
     }
+    consecutiveErrors = 0;
+    if (r.outcome === "drafted") drafted++;
+    else if (r.outcome === "out_of_scope") rejected++;
+    else failed++;
   }
   return { calls, drafted, rejected, failed };
 }

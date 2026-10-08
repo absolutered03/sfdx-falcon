@@ -1,5 +1,6 @@
 import { and, arrayContains, asc, desc, eq, gte, inArray, isNotNull, lte, ne, sql } from "drizzle-orm";
 import { getDb, schema } from "../db/client";
+import { compareVersions } from "../ingest/normalize";
 import type { Category, Impact, ItemKind } from "./taxonomy";
 
 const { items, sources, entities, itemEntities, entityAlternatives, placements, sponsors } = schema;
@@ -57,16 +58,6 @@ const isVisible = sql<boolean>`(
   )
 )`;
 
-/** Numeric version compare: v3.10.0 > v3.9.4, 2.585 > 2.580.1. */
-function compareVersions(a: string, b: string): number {
-  const pa = a.replace(/^v/, "").split(".").map(Number);
-  const pb = b.replace(/^v/, "").split(".").map(Number);
-  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
-    const d = (pa[i] ?? 0) - (pb[i] ?? 0);
-    if (d) return d;
-  }
-  return 0;
-}
 
 export interface CurrentVersion {
   version: string;

@@ -70,7 +70,7 @@ New category: **Enterprise app platforms** (`app_platforms`), Salesforce first: 
 |---|---|---|
 | 1 | ~~Register the domain~~ (done 2026-10-08). Set up email forwarding for `editor@platformchangelog.dev`, the address `/about` publishes. Move this folder into its own repo (the workflow file only runs from a repo root). Create a Railway project with Postgres. `npm ci`, `npm run db:push`, `npm run seed`, `npm run ingest:dry`, then `MAX_LLM_CALLS_PER_RUN=10 npm run ingest`. | 10 drafts in `/admin` |
 | 2 | Read all 10 drafts against their sources. Tune the system prompt in `summarize.ts` and the keyword lists. Re-run on the backlog. Verify every entity description against the project's own site. | You would publish 8 of 10 drafts with light edits |
-| 3 | Approve the 30-day backfill. Write practical notes for Backstage, Port, Argo CD, Crossplane and the Kubernetes MCP server. Hand-add 3 to 5 real case studies or postmortems. | 5 tool pages you would send to a peer |
+| 3 | Run `npm run backfill`, check the list, then `npm run backfill -- --run` (about 27 drafts on the current registry). Approve the 30-day backlog and the backfill drafts. Write practical notes for Backstage, Port, Argo CD, Crossplane and the Kubernetes MCP server. Hand-add 3 to 5 real case studies or postmortems. | 5 tool pages you would send to a peer |
 | 4 | Deploy the site to Railway and attach the domain (steps below). Add `DATABASE_URL` and `ANTHROPIC_API_KEY` as repo secrets and enable the cron workflow. | Cron runs green twice unattended |
 | 5 | Add an RSS feed of approved items. (`sitemap.xml`, `robots.txt` and OpenGraph tags are already built.) Submit the sitemap in Google Search Console and Bing Webmaster Tools. | Search Console shows the sitemap read with 19+ URLs |
 | 6 | `npm run digest`, write the intro and reader question, set it up in Buttondown. Read the whole site once on a phone. | Digest #1 ready to send |
@@ -83,7 +83,7 @@ New category: **Enterprise app platforms** (`app_platforms`), Salesforce first: 
 | What | Backfill? | Why |
 |---|---|---|
 | **Current version and recent release history** | ✅ automatic | On a feed's first fetch, releases older than the 30-day window are stored as logged history (no LLM, no review). GitHub's release feed holds the latest 10, which is enough for every tool to show a current version on day one. |
-| **One reviewed entry per tool** | ✅ recommended, one sitting | Summarize each tool's latest minor or major release so every visible page opens with a reviewed "what changed". About 30 drafts, at roughly $0.0014 each on Haiku 5.5; the real cost is about an hour of review. |
+| **One reviewed entry per tool** | ✅ built: `npm run backfill` (dry run), then `npm run backfill -- --run` | Summarize each tool's latest minor or major release so every visible page opens with a reviewed "what changed". About 30 drafts, at roughly $0.0014 each on Haiku 5.5; the real cost is about an hour of review. |
 | **Feed news older than 30 days** | ❌ | A "what shipped" feed full of old news reads as stale, and blog feeds only expose recent posts anyway. |
 | **A year of release history** | ⏸ later, if wanted | Needs the GitHub API with a token (60 requests an hour without one). Nice for tool pages, not needed to launch. |
 
