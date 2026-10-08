@@ -5,6 +5,7 @@
 //   npm run compare -- --limit 20 --include-out-of-scope
 //   npm run compare -- --models claude-opus-5-5,claude-sonnet-5-5
 //   npm run compare -- --cli --models claude-opus-5-5,claude-haiku-5-5
+//   npm run compare -- --kind rss            # blog posts only (or github_releases)
 //       --cli runs through the local Claude Code CLI on your subscription (no API key);
 //       for evaluation only, never for the ingest job.
 //
@@ -37,6 +38,7 @@ const MODELS = (arg("models") ?? "claude-opus-5-5,claude-haiku-4-5").split(",");
 const LIMIT = Number(arg("limit") ?? 12);
 const INCLUDE_OOS = process.argv.includes("--include-out-of-scope");
 const USE_CLI = process.argv.includes("--cli");
+const KIND = arg("kind") as "rss" | "github_releases" | undefined;
 const summarize = USE_CLI ? summarizeItemViaCli : summarizeItem;
 
 for (const m of MODELS) if (!PRICES[m]) throw new Error(`No price for ${m}; add it to PRICES`);
@@ -50,7 +52,11 @@ const candidates = await db
   .select({ item: schema.items, source: schema.sources })
   .from(schema.items)
   .leftJoin(schema.sources, eq(schema.items.sourceId, schema.sources.id))
-  .where(sql`${inArray(schema.items.status, [...statuses])} and length(${schema.items.excerpt}) >= 200`)
+  .where(
+    sql`${inArray(schema.items.status, [...statuses])} and length(${schema.items.excerpt}) >= 200${
+      KIND ? sql` and ${schema.sources.kind} = ${KIND}` : sql``
+    }`,
+  )
   .orderBy(desc(schema.items.publishedAt))
   .limit(300);
 
