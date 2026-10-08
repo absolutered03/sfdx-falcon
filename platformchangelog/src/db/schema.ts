@@ -66,6 +66,9 @@ export const sources = pgTable("sources", {
   // Optional regex a release title must match, for repos that publish several
   // components (open-feature/flagd ships "flagd: v0.17.0" next to "core: v0.18.0").
   tagPattern: text("tag_pattern"),
+  // An RSS feed whose items are releases (GitLab's monthly release notes): treated
+  // like a GitHub release feed for triage, versions and history.
+  releaseFeed: boolean("release_feed").notNull().default(false),
   active: boolean("active").notNull().default(true),
   etag: text("etag"),
   lastModified: text("last_modified"),

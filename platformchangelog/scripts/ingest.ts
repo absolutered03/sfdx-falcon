@@ -38,6 +38,8 @@ const USER_AGENT = `platformchangelog-ingest/0.1 (+${SITE_URL}/about)`;
 type SourceRow = typeof schema.sources.$inferSelect;
 type SourceSeed = Pick<SourceRow, "slug" | "name" | "kind" | "tier"> & Partial<SourceRow>;
 
+const isReleaseSource = (s: SourceSeed) => s.kind === "github_releases" || !!s.releaseFeed;
+
 const feedUrlFor = (s: SourceSeed) =>
   s.kind === "github_releases" ? `https://github.com/${s.githubRepo}/releases.atom` : s.feedUrl!;
 
@@ -67,7 +69,7 @@ async function fetchSource(s: SourceSeed): Promise<FetchResult> {
 type Triage = { status: "pending_llm" | "out_of_scope" | "logged"; reason: string };
 
 function triage(s: SourceSeed, it: RawItem): Triage {
-  if (s.kind === "github_releases") {
+  if (isReleaseSource(s)) {
     if (!isProductReleaseTag(it.title)) return { status: "out_of_scope", reason: "component or chart tag" };
     if (s.tagPattern && !new RegExp(s.tagPattern).test(it.title)) return { status: "out_of_scope", reason: "other component" };
     if (isPrerelease(it.title)) return { status: "out_of_scope", reason: "prerelease tag" };
@@ -127,10 +129,10 @@ async function fetchPhase(db: ReturnType<typeof getDb>) {
         // Older news is skipped on a first fetch, but older releases are kept as logged
         // history (no LLM call), so every tool shows a current version from day one.
         const old = it.publishedAt.getTime() < cutoff;
-        if (old && s.kind !== "github_releases") continue;
+        if (old && !isReleaseSource(s)) continue;
         let t = triage(s, it);
         if (old && t.status === "pending_llm") t = { status: "logged", reason: "release history from before the first fetch" };
-        const isRelease = s.kind === "github_releases";
+        const isRelease = isReleaseSource(s);
         const [row] = await db
           .insert(schema.items)
           .values({

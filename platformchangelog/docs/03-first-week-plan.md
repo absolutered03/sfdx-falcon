@@ -45,7 +45,8 @@ Already in `data/sources.json`. Feed URLs for the five blogs were fetched and co
 |---|---|---|---|
 | GitHub releases: Flux, OpenTofu, OPA, Argo Rollouts, Salesforce DX MCP Server | primary / vendor | every product release is a candidate | ✅ feeds parsed 2026-10-08 |
 | GitHub releases: Jenkins, Tekton, Argo Workflows, Salesforce CLI | primary / vendor | **light coverage** (`release_policy = major_or_security`): only a new major line or a security fix reaches the feed; everything else is logged on the tool page | ✅ 2026-10-08: 31 releases in 30 days, 1 to the feed (a Tekton security fix) |
-| Jenkins security advisories RSS | primary | all items | ⚠️ proxy still rejects `www.jenkins.io`; allowlist needs the `www.` host |
+| Jenkins security advisories RSS | primary | all items, linked to the Jenkins page | ✅ 2026-10-08: 103 advisories in the feed, about one a month |
+| GitLab release notes (docs.gitlab.com) | primary | monthly releases; `release_feed` treats RSS items as releases, so GitLab gets a current version | ✅ 2026-10-08: GitLab 19.4 current, 19.1 to 19.3 kept as history |
 | Salesforce Developers Blog | vendor | **disabled** | ❌ 2026-10-08: Akamai bot protection returns 403 to automated clients, including Node's client with browser headers. Not worked around on purpose; add notable posts by hand |
 | What's New with AWS | vendor | strict AWS service list, **matched on titles only** | ✅ 2026-10-08: ~250 announcements a month; title matching passes ~28 (body matching passed ~60, many incidental CloudWatch and CloudFormation mentions) |
 | AWS DevOps Blog, AWS Containers Blog | vendor | general keyword filter | ✅ 2026-10-08: ~10 posts a month each, nearly all pass |

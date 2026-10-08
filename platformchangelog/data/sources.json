@@ -236,7 +236,8 @@
       "supply_chain",
       "cicd"
     ],
-    "keywordFilter": false
+    "keywordFilter": false,
+    "entitySlug": "jenkins"
   },
   {
     "slug": "gh-salesforce-cli",
@@ -628,5 +629,19 @@
       "retirement",
       "release"
     ]
+  },
+  {
+    "slug": "gitlab-releases",
+    "name": "GitLab release notes",
+    "kind": "rss",
+    "tier": "primary",
+    "siteUrl": "https://docs.gitlab.com/releases/",
+    "feedUrl": "https://docs.gitlab.com/releases/releases.xml",
+    "entitySlug": "gitlab",
+    "defaultCategories": [
+      "cicd"
+    ],
+    "keywordFilter": false,
+    "releaseFeed": true
   }
 ]
