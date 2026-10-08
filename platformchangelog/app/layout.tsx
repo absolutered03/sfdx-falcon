@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Platform Changelog", template: "%s | Platform Changelog" },
+  metadataBase: new URL(SITE_URL),
+  title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
+  openGraph: { siteName: SITE_NAME, type: "website" },
   description:
     "What shipped in platform engineering, developer experience and DevOps, and what it changes for platform teams. Vendor-neutral, human-reviewed.",
 };

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | MVP starter. Builds, runs and renders against Postgres; LLM call not yet run live |
+| Status | MVP starter. Builds, runs and renders against Postgres; LLM call not yet run live. Domain `platformchangelog.dev` owned (2026-10-08), not yet pointed at a host |
 | Date | 2026-10-06 |
 | Owner | CT |
 | Audience | CT, and anyone who runs this later |
@@ -69,6 +69,7 @@ Run on 2026-10-06 against a local Postgres 16:
 | Dedupe | `npm run ingest` again | 0 new items |
 | Pages | curl each route | `/`, filters, `/tools`, `/tools/backstage` (6 logged patch releases + 4 comparisons), `/about` all 200; unknown slug 404; `/admin` 401 without credentials, 200 with |
 | Publish path | headless Chromium clicks Approve | item moved to `approved` with `reviewed_at` set; queue emptied |
+| SEO surface (2026-10-08) | curl `/robots.txt`, `/sitemap.xml`, a tool page | robots allows answer engines, blocks training crawlers and `/admin`; sitemap lists 19 URLs on `https://platformchangelog.dev`; tool pages carry `og:title` / `og:description` |
 
 ## Honest status
 

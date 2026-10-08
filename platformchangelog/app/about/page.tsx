@@ -1,3 +1,5 @@
+import { CONTACT_EMAIL } from "@/lib/site";
+
 export const metadata = { title: "Methodology" };
 
 // Keep this page in step with docs/04-editorial-rules.md. It is the public contract.
@@ -41,7 +43,10 @@ export default function About() {
       </p>
 
       <h2 style={{ fontSize: 18 }}>Corrections</h2>
-      <p>If we got something wrong, tell us and we will fix it and note the correction on the entry.</p>
+      <p>
+        If we got something wrong, email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> and we will fix it and
+        note the correction on the entry. Tips on public postmortems and case studies go to the same address.
+      </p>
     </>
   );
 }

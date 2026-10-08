@@ -26,12 +26,13 @@ import {
 } from "../src/ingest/normalize";
 import { prefilter } from "../src/ingest/prefilter";
 import { summarizeItem } from "../src/ingest/summarize";
+import { SITE_URL } from "../src/lib/site";
 import type { Category } from "../src/lib/taxonomy";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 const MAX_LLM_CALLS = Number(process.env.MAX_LLM_CALLS_PER_RUN ?? 40);
 const BACKFILL_DAYS = 30; // ignore anything older on a source's first fetch
-const USER_AGENT = "platformchangelog-ingest/0.1 (+https://platformchangelog.dev/about)";
+const USER_AGENT = `platformchangelog-ingest/0.1 (+${SITE_URL}/about)`;
 
 type SourceRow = typeof schema.sources.$inferSelect;
 type SourceSeed = Pick<SourceRow, "slug" | "name" | "kind" | "tier"> & Partial<SourceRow>;

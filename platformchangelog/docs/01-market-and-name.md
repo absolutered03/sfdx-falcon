@@ -48,7 +48,7 @@ Confidence: high where a source is linked, `[estimate]` where noted.
 
 ## Name and URL
 
-**Recommendation: Platform Changelog, at `platformchangelog.dev`** (redirect `platformchangelog.com`).
+**Decided: Platform Changelog, at `platformchangelog.dev`.** CT bought the domain on 2026-10-08. `platformchangelog.com` is still worth registering as a redirect so nobody else takes it.
 
 - Says exactly what it is, and matches how people search ("crossplane 2.4 changelog", "backstage release notes").
 - `.dev` reads correctly to the audience and forces HTTPS.
@@ -56,8 +56,8 @@ Confidence: high where a source is linked, `[estimate]` where noted.
 
 | Candidate | Domains | Note |
 |---|---|---|
-| **Platform Changelog** | platformchangelog.dev, .com, .io | Recommended. "Changelog" is generic, though [The Changelog](https://changelog.com) podcast is adjacent |
+| **Platform Changelog** | platformchangelog.dev (owned), .com, .io | Chosen. "Changelog" is generic, though [The Changelog](https://changelog.com) podcast is adjacent |
 | The Paved Road | thepavedroad.dev, pavedroadreport.com | Insider term, more brand than description; pavedroad.dev is taken |
 | Paved Log | pavedlog.dev | Shorter blend of both ideas |
 
-> **Verify before buying.** Availability was checked by DNS on 2026-10-06: every recommended domain returned no record at all (taken domains such as `goldenpaths.dev`, `controlplane.news` and `pavedroad.io` resolve, and `paved.dev` / `pavedroad.dev` exist with no address). That is a strong hint, not proof. Registrar lookup was blocked from the build environment. Check at the registrar.
+> **How availability was checked (historical).** Availability was checked by DNS on 2026-10-06: every recommended domain returned no record at all (taken domains such as `goldenpaths.dev`, `controlplane.news` and `pavedroad.io` resolve, and `paved.dev` / `pavedroad.dev` exist with no address). That is a strong hint, not proof. Registrar lookup was blocked from the build environment. Check at the registrar.
