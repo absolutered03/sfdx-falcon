@@ -349,5 +349,92 @@
     "feedUrl": "https://aws.amazon.com/blogs/containers/feed/",
     "defaultCategories": [],
     "keywordFilter": true
+  },
+  {
+    "slug": "gh-servicenow-sdk",
+    "name": "ServiceNow SDK releases",
+    "kind": "github_releases",
+    "tier": "vendor",
+    "githubRepo": "ServiceNow/sdk",
+    "entitySlug": "servicenow-sdk",
+    "defaultCategories": [
+      "app_platforms"
+    ],
+    "releasePolicy": "major_or_security"
+  },
+  {
+    "slug": "gh-pp-build-tools",
+    "name": "Power Platform Build Tools releases",
+    "kind": "github_releases",
+    "tier": "vendor",
+    "githubRepo": "microsoft/powerplatform-build-tools",
+    "entitySlug": "power-platform-build-tools",
+    "defaultCategories": [
+      "app_platforms",
+      "cicd"
+    ],
+    "releasePolicy": "major_or_security"
+  },
+  {
+    "slug": "gh-pp-actions",
+    "name": "Power Platform GitHub Actions releases",
+    "kind": "github_releases",
+    "tier": "vendor",
+    "githubRepo": "microsoft/powerplatform-actions",
+    "entitySlug": "power-platform-build-tools",
+    "defaultCategories": [
+      "app_platforms",
+      "cicd"
+    ],
+    "releasePolicy": "major_or_security"
+  },
+  {
+    "slug": "gh-sap-btp-terraform",
+    "name": "Terraform Provider for SAP BTP releases",
+    "kind": "github_releases",
+    "tier": "vendor",
+    "githubRepo": "SAP/terraform-provider-btp",
+    "entitySlug": "sap-btp-terraform",
+    "defaultCategories": [
+      "app_platforms",
+      "idp"
+    ],
+    "releasePolicy": "standard"
+  },
+  {
+    "slug": "power-platform-blog",
+    "name": "Microsoft Power Platform Blog",
+    "kind": "rss",
+    "tier": "vendor",
+    "siteUrl": "https://www.microsoft.com/en-us/power-platform/blog/",
+    "feedUrl": "https://www.microsoft.com/en-us/power-platform/blog/feed/",
+    "defaultCategories": [
+      "app_platforms"
+    ],
+    "keywordFilter": true,
+    "keywordTerms": [
+      "ALM",
+      "pipelines",
+      "Managed Environments",
+      "governance",
+      "admin center",
+      "environment strategy",
+      "DLP",
+      "data policies",
+      "Power Platform CLI",
+      "pac CLI",
+      "source control",
+      "Git integration",
+      "Copilot Studio",
+      "MCP",
+      "security",
+      "tenant",
+      "Center of Excellence",
+      "CoE",
+      "deprecated",
+      "deprecation",
+      "retirement",
+      "licensing"
+    ]
   }
 ]

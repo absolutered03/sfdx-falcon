@@ -15,6 +15,8 @@ const SCOPE_TERMS = [
   "supply chain", "sbom", "slsa", "sigstore", "provenance",
   "finops", "cloud cost", "guardrail", "least privilege", "rbac",
   "jenkins", "tekton", "salesforce", "agentforce", "platform-as-a-service", "eks",
+  "servicenow", "power platform", "power apps", "dataverse", "copilot studio",
+  "sap btp", "business technology platform", "kyma",
 ];
 
 // Consumer and model-release news is out of scope for v1 even when it mentions agents.

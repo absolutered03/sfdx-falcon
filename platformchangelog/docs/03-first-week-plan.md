@@ -49,8 +49,11 @@ Already in `data/sources.json`. Feed URLs for the five blogs were fetched and co
 | Salesforce Developers Blog | vendor | strict Salesforce platform-team term list (`keyword_terms`) | ⚠️ blocked in the build sandbox |
 | What's New with AWS | vendor | strict AWS service term list (EKS, CodePipeline, CloudFormation, CDK, Q Developer, DevOps Agent, AgentCore, ECR, CloudWatch, Control Tower...) | ⚠️ blocked; **expect high volume, watch the prefilter pass rate in week 1** |
 | AWS DevOps Blog, AWS Containers Blog | vendor | general keyword filter | ⚠️ blocked in the build sandbox |
+| GitHub releases: ServiceNow SDK, Power Platform Build Tools and GitHub Actions | vendor | light coverage | ✅ 2026-10-08 |
+| GitHub releases: Terraform Provider for SAP BTP | vendor | every release (monthly; the Kubernetes and IaC crossover) | ✅ 2026-10-08 |
+| Microsoft Power Platform Blog | vendor | strict ALM and governance term list | ✅ 2026-10-08: ~8 posts a month, 5 of 6 recent passed |
 
-New category: **Enterprise app platforms** (`app_platforms`), Salesforce first: platform-team concerns only (release governance, DevOps tooling, APIs and integration, permission and security model changes, agents such as Agentforce), not end-user feature marketing. ServiceNow and Microsoft Power Platform are the obvious next additions.
+New category: **Enterprise app platforms** (`app_platforms`), Salesforce first: platform-team concerns only (release governance, DevOps tooling, APIs and integration, permission and security model changes, agents such as Agentforce), not end-user feature marketing. Added the same day: ServiceNow, Microsoft Power Platform and SAP BTP. ServiceNow's and SAP's own blog feeds could not be confirmed, so they are not listed; media coverage reaches them through the general keyword list. Open-source Kyma has not released since 2023 and is not tracked.
 
 **Not ingested, on purpose:** Platform Weekly and other newsletters are competitors and aggregators, so read them for discovery and add what you find by hand from the primary source. Annual reports (DORA, Puppet, State of Platform Engineering) are manual adds when they drop.
 

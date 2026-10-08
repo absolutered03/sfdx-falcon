@@ -395,6 +395,87 @@
       "vendor": "AWS",
       "license": "commercial",
       "governance": "vendor-owned"
+    },
+    {
+      "slug": "servicenow-platform",
+      "name": "ServiceNow Now Platform",
+      "kind": "platform",
+      "categories": [
+        "app_platforms"
+      ],
+      "description": "ServiceNow's platform for building workflow applications on a shared data model spanning IT, HR and customer service, with App Engine for low-code apps and scoped apps for custom code.",
+      "homepageUrl": "https://www.servicenow.com/now-platform.html",
+      "vendor": "ServiceNow",
+      "license": "commercial",
+      "governance": "vendor-owned"
+    },
+    {
+      "slug": "servicenow-sdk",
+      "name": "ServiceNow SDK",
+      "kind": "tool",
+      "categories": [
+        "app_platforms",
+        "cicd"
+      ],
+      "description": "ServiceNow's SDK and CLI for source-driven development: define applications in code, build and deploy them from a local repository.",
+      "repoUrl": "https://github.com/ServiceNow/sdk",
+      "vendor": "ServiceNow",
+      "license": "commercial",
+      "governance": "vendor-owned"
+    },
+    {
+      "slug": "power-platform",
+      "name": "Microsoft Power Platform",
+      "kind": "platform",
+      "categories": [
+        "app_platforms"
+      ],
+      "description": "Microsoft's low-code platform: Power Apps, Power Automate, Power Pages and Copilot Studio on the Dataverse data model, with connectors into Microsoft 365, Dynamics 365 and other enterprise systems.",
+      "homepageUrl": "https://www.microsoft.com/power-platform",
+      "vendor": "Microsoft",
+      "license": "commercial",
+      "governance": "vendor-owned"
+    },
+    {
+      "slug": "power-platform-build-tools",
+      "name": "Power Platform Build Tools",
+      "kind": "tool",
+      "categories": [
+        "app_platforms",
+        "cicd"
+      ],
+      "description": "Microsoft's Azure DevOps tasks and GitHub Actions for Power Platform ALM: exporting, checking, packing and deploying solutions between environments.",
+      "repoUrl": "https://github.com/microsoft/powerplatform-build-tools",
+      "vendor": "Microsoft",
+      "license": "oss",
+      "governance": "vendor-owned"
+    },
+    {
+      "slug": "sap-btp",
+      "name": "SAP Business Technology Platform",
+      "kind": "platform",
+      "categories": [
+        "app_platforms"
+      ],
+      "description": "SAP's platform for extending S/4HANA and SuccessFactors, with Cloud Foundry and Kyma (SAP-managed Kubernetes) runtimes.",
+      "homepageUrl": "https://www.sap.com/products/technology-platform.html",
+      "vendor": "SAP",
+      "license": "commercial",
+      "governance": "vendor-owned"
+    },
+    {
+      "slug": "sap-btp-terraform",
+      "name": "Terraform Provider for SAP BTP",
+      "kind": "tool",
+      "categories": [
+        "app_platforms",
+        "idp"
+      ],
+      "description": "SAP's Terraform provider for BTP: global accounts, subaccounts, entitlements and service instances managed as code.",
+      "repoUrl": "https://github.com/SAP/terraform-provider-btp",
+      "vendor": "SAP",
+      "license": "oss",
+      "governance": "vendor-owned"
     }
   ],
   "alternatives": [
@@ -452,6 +533,26 @@
       "entity": "argo-rollouts",
       "alternative": "flux",
       "note": "Argo Rollouts handles canary and blue-green steps; Flux pairs with Flagger for the same job."
+    },
+    {
+      "entity": "salesforce-platform",
+      "alternative": "servicenow-platform",
+      "note": "Both are system-of-record platforms you build on; Salesforce starts from customer data, ServiceNow from IT, HR and service workflows."
+    },
+    {
+      "entity": "salesforce-platform",
+      "alternative": "power-platform",
+      "note": "Power Platform is lower-code and rides on Microsoft 365 and Dynamics; Salesforce carries a deeper CRM data model and a heavier custom-code tier."
+    },
+    {
+      "entity": "servicenow-platform",
+      "alternative": "power-platform",
+      "note": "ServiceNow suits enterprise workflow on its own data model; Power Platform suits process apps across Microsoft 365, with broader connectors."
+    },
+    {
+      "entity": "sap-btp",
+      "alternative": "amazon-eks",
+      "note": "BTP's Kyma runtime is SAP-managed Kubernetes inside the SAP estate; EKS is general-purpose managed Kubernetes."
     }
   ]
 }

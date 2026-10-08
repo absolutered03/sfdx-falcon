@@ -40,7 +40,7 @@ Scope (in_scope = true only if the item is mainly about one of these):
 - measuring developer experience and agent experience (throughput, change failure, PR size, platform readiness for agents)
 - governance, cost and permissions when agents consume platform APIs
 - releases of platform tooling and the CI/CD tools platforms run on (Argo, Jenkins, Tekton, GitHub Actions), case studies, postmortems, and survey or benchmark reports in this space
-- enterprise application platforms (platform-as-a-service such as Salesforce): only what a platform team owns, meaning release and deployment governance, DevOps tooling and CLIs, APIs and integration patterns, permission and security model changes, and AI agents (such as Agentforce) acting on enterprise data. Not end-user feature marketing or admin how-tos
+- enterprise application platforms (platform-as-a-service such as Salesforce, ServiceNow, Microsoft Power Platform and SAP BTP): only what a platform team owns, meaning release and deployment governance, DevOps tooling and CLIs, APIs and integration patterns, permission and security model changes, and AI agents (such as Agentforce) acting on enterprise data. Not end-user feature marketing or admin how-tos
 - cloud provider announcements (AWS first) that change how platform teams run Kubernetes, delivery pipelines, infrastructure as code, observability, cost or agent tooling
 Out of scope: general AI model releases, consumer AI, app-framework tutorials, funding news, event promotion.
 
