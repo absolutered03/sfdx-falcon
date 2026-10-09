@@ -22,17 +22,20 @@ export default function About() {
 
       <h2 style={{ fontSize: 18 }}>What software does, and what a person does</h2>
       <p>
-        Software fetches the sources, discards obvious noise (pre-releases, chart tags, off-topic posts) and drafts a short
-        summary and tags with a language model. A person reads every draft against the source, edits or rejects it, and only
-        then is it published. Routine patch releases are listed on a tool's page as a version, date and link, with no
-        generated text.
+        Software fetches the sources, discards obvious noise (pre-releases, chart tags, off-topic posts) and writes a short
+        summary and tags with a language model. Entries are published automatically, without an editor reading them first.
+        Before anything goes live, fixed rules hold back any entry with a missing source link, runaway length, markup or hype
+        vocabulary. An editor reads the feed after publication and corrects or removes mistakes. Routine patch releases are
+        listed on a tool&apos;s page as a version, date and link, with no generated text. Practical notes on tool pages are
+        written by a person, never by the model.
       </p>
 
       <h2 style={{ fontSize: 18 }}>Impact tags</h2>
       <p>
-        <b>Major</b> means a breaking change, a security fix, a capability platform teams will plan around, or a report with
-        new primary data. Everything else that clears the bar is <b>notable</b>. A vendor&apos;s claims about its own product
-        are reported as claims, and a vendor announcement on its own is never tagged major.
+        <b>Major</b> means a breaking change, a security fix in the tool itself, a capability platform teams will plan
+        around, or a report with new primary data. Only an editor tags an entry major; everything published automatically is
+        tagged <b>notable</b>. A vendor&apos;s claims about its own product are reported as claims, and a vendor announcement on
+        its own is never tagged major.
       </p>
 
       <h2 style={{ fontSize: 18 }}>Sponsorship</h2>

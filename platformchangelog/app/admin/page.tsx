@@ -1,21 +1,18 @@
-import { getReviewQueue, type FeedItem } from "@/lib/queries";
+import { getAuditQueue, type FeedItem } from "@/lib/queries";
 import { CATEGORIES, CATEGORY_LABELS, IMPACTS, ITEM_KINDS } from "@/lib/taxonomy";
-import { addManualItem, approveItem, rejectItem } from "./actions";
+import { addManualItem, approveItem, markMajor, rejectItem } from "./actions";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Review queue", robots: { index: false } };
+export const metadata = { title: "Audit", robots: { index: false } };
 
-function ReviewForm({ row }: { row: FeedItem }) {
-  const { item, sourceName, sourceTier } = row;
+type Mode = "published" | "held" | "out_of_scope";
+
+const modelImpact = (item: FeedItem["item"]) => (item.llmRaw as { impact?: string } | null)?.impact;
+
+function EditForm({ row, mode }: { row: FeedItem; mode: Mode }) {
+  const { item } = row;
   return (
-    <article className="item">
-      <div className="meta">
-        <span>{item.publishedAt.toISOString().slice(0, 10)}</span>
-        <span>{sourceName ?? "manual"} ({sourceTier ?? "manual"})</span>
-        <span>{item.statusReason}</span>
-      </div>
-      <h3><a href={item.url} target="_blank" rel="noopener nofollow">{item.title}</a></h3>
-      {item.flags.length > 0 && <div className="flags">Flags: {item.flags.join(", ")}</div>}
+    <>
       <details>
         <summary>Source text the model saw</summary>
         <pre style={{ whiteSpace: "pre-wrap", fontSize: 13, maxHeight: 300, overflow: "auto" }}>{item.excerpt}</pre>
@@ -44,36 +41,78 @@ function ReviewForm({ row }: { row: FeedItem }) {
           ))}
         </div>
         <label>Editor note (optional, public)<input name="editorNote" defaultValue={item.editorNote ?? ""} /></label>
-        <p><button type="submit">Approve and publish</button></p>
+        <p><button type="submit">{mode === "published" ? "Save changes" : "Publish"}</button></p>
       </form>
-      <form action={rejectItem} className="row">
+    </>
+  );
+}
+
+function Entry({ row, mode }: { row: FeedItem; mode: Mode }) {
+  const { item, sourceName, sourceTier } = row;
+  const suggestedMajor = mode === "published" && item.impact !== "major" && modelImpact(item) === "major";
+  return (
+    <article className="item">
+      <div className="meta">
+        <span>{item.publishedAt.toISOString().slice(0, 10)}</span>
+        <span>{sourceName ?? "manual"} ({sourceTier ?? "manual"})</span>
+        {mode === "published" && <span className={`tag ${item.impact}`}>{item.impact}</span>}
+        {mode !== "published" && <span>{item.statusReason}</span>}
+      </div>
+      <h3><a href={item.url} target="_blank" rel="noopener nofollow">{item.title}</a></h3>
+      {item.flags.length > 0 && <div className="flags">Flags: {item.flags.join(", ")}</div>}
+      {mode === "published" ? (
+        <>
+          <p style={{ margin: "6px 0" }}>{item.summary}</p>
+          <p className="impact"><b>For platform teams:</b> {item.platformImpact}</p>
+          {suggestedMajor && (
+            <form action={markMajor} className="row" style={{ alignItems: "center", margin: "8px 0" }}>
+              <input type="hidden" name="id" value={item.id} />
+              <span style={{ fontSize: 14 }}>The model suggested Major. Published as notable until you agree.</span>
+              <button type="submit" style={{ flex: "0 0 auto" }}>Mark Major</button>
+            </form>
+          )}
+          <details><summary>Edit</summary><EditForm row={row} mode={mode} /></details>
+        </>
+      ) : (
+        <EditForm row={row} mode={mode} />
+      )}
+      <form action={rejectItem} className="row" style={{ marginTop: 8 }}>
         <input type="hidden" name="id" value={item.id} />
-        <input name="reason" placeholder="Reject reason (vendor fluff, off-niche, duplicate...)" />
-        <button type="submit" style={{ flex: "0 0 auto" }}>Reject</button>
+        <input name="reason" placeholder="Reason (wrong, vendor fluff, off-niche, duplicate...)" />
+        <button type="submit" style={{ flex: "0 0 auto" }}>{mode === "published" ? "Unpublish" : "Reject"}</button>
       </form>
     </article>
   );
 }
 
 export default async function Admin() {
-  const { drafts, llmRejected } = await getReviewQueue();
+  const { published, held, llmRejected } = await getAuditQueue();
   return (
     <>
-      <h1 style={{ fontSize: 22 }}>Review queue ({drafts.length})</h1>
-      {drafts.length === 0 && <p>Inbox zero.</p>}
-      {drafts.map((r) => <ReviewForm key={r.item.id} row={r} />)}
+      <h1 style={{ fontSize: 22 }}>Audit</h1>
+      <p style={{ color: "var(--muted)" }}>
+        Feed items publish without review, capped at notable. Nothing here needs action; it is where you fix what slipped through.
+      </p>
+
+      <h2 style={{ fontSize: 18 }}>Published automatically, last 14 days ({published.length})</h2>
+      {published.length === 0 && <p>Nothing yet.</p>}
+      {published.map((r) => <Entry key={r.item.id} row={r} mode="published" />)}
+
+      <h2 style={{ fontSize: 18, marginTop: 40 }}>Held by the publish checks ({held.length})</h2>
+      <p style={{ color: "var(--muted)" }}>Off the site. The reason is on each one. Fix and publish, or leave them.</p>
+      {held.map((r) => <Entry key={r.item.id} row={r} mode="held" />)}
 
       <h2 style={{ fontSize: 18, marginTop: 40 }}>The model called these out of scope</h2>
-      <p style={{ color: "var(--muted)" }}>Skim for false negatives. Approving one publishes it.</p>
-      {llmRejected.map((r) => <ReviewForm key={r.item.id} row={r} />)}
+      <p style={{ color: "var(--muted)" }}>Skim for false negatives. Publishing one overrules the model.</p>
+      {llmRejected.map((r) => <Entry key={r.item.id} row={r} mode="out_of_scope" />)}
 
       <h2 style={{ fontSize: 18, marginTop: 40 }}>Add an item by hand</h2>
       <form action={addManualItem}>
         <input name="url" placeholder="https://..." required />
         <input name="title" placeholder="Title" required />
         <input name="publishedAt" type="date" />
-        <textarea name="excerpt" placeholder="Paste the relevant source text. The next ingest run drafts a summary from it." required />
-        <p><button type="submit">Queue for drafting</button></p>
+        <textarea name="excerpt" placeholder="Paste the relevant source text. The next ingest run writes it up and publishes it if it passes the checks." required />
+        <p><button type="submit">Queue it</button></p>
       </form>
     </>
   );

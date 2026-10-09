@@ -165,7 +165,8 @@ export const items = pgTable(
     llmModel: text("llm_model"),
     llmRaw: jsonb("llm_raw"), // the full structured output, for audit
     editorNote: text("editor_note"), // optional human aside, rendered publicly
-    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }), // last time an editor touched it
+    approvedAt: timestamp("approved_at", { withTimezone: true }), // when it went public, automatically or by an editor
     sponsorId: integer("sponsor_id").references(() => sponsors.id),
   },
   (t) => [

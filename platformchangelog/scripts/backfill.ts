@@ -1,19 +1,20 @@
-// One-time launch backfill: draft one reviewed entry per tool, so every visible tool
+// One-time launch backfill: publish one entry per tool, so every visible tool
 // page opens with a "what changed" written up from its latest minor or major release.
 //
-//   npm run backfill                 dry run: lists what it would draft, no LLM, no writes
-//   npm run backfill -- --run        drafts them (API key required), up to --limit calls
+//   npm run backfill                 dry run: lists what it would write up, no LLM, no writes
+//   npm run backfill -- --run        writes them up (API key required), up to --limit calls
 //   npm run backfill -- --run --limit 10
 //
 // Picks, per tool with release history:
-//   - skip if the tool already has an entry in review, approved or rejected
+//   - skip if the tool already has an entry: published, held or unpublished
 //   - otherwise the release that opened its current version line (4.1.0 when 4.1.4 is
 //     current), so the entry covers the features; if that one is not in the stored
 //     history, the current release itself. Never an older line: an entry should
 //     describe the tool as it is now
-// Drafts land in /admin like any other; nothing is published. Uses the API backend
-// (LLM_MODEL, default claude-opus-5-5), never the subscription CLI, because these
-// drafts become site content. Safe to re-run: tools handled once are skipped.
+// Entries go through the same path as ingest: published as notable if they pass the
+// publish checks, held otherwise. Uses the API backend (LLM_MODEL, default
+// claude-opus-5-5), never the subscription CLI, because these become site content.
+// Safe to re-run: tools handled once are skipped.
 
 import { and, eq, inArray, isNotNull } from "drizzle-orm";
 import { getDb, schema } from "../src/db/client";
@@ -31,7 +32,7 @@ const allEntities = await db.select({ id: entities.id, slug: entities.slug, name
 const entityId = new Map(allEntities.map((e) => [e.slug, e.id]));
 
 // Every release linked to a tool that made it past triage, plus whether the tool
-// already has an entry a human has seen or will see.
+// already has an entry (published, held or unpublished).
 const rows = await db
   .select({ entity: itemEntities.entityId, item: items, source: sources })
   .from(itemEntities)
@@ -80,11 +81,11 @@ if (skipped.length) console.log(`\nAlready handled: ${skipped.join(", ")}`);
 console.log(`\nNo release history (need a blog item or practical notes to appear): ${noHistory.join(", ")}`);
 
 if (!RUN) {
-  console.log(`\nDry run only. Re-run with --run to draft up to ${Math.min(LIMIT, picks.length)} of these.`);
+  console.log(`\nDry run only. Re-run with --run to write up ${Math.min(LIMIT, picks.length)} of these.`);
   process.exit(0);
 }
 
-let drafted = 0, rejected = 0, failed = 0, errors = 0, consecutive = 0;
+let published = 0, held = 0, rejected = 0, failed = 0, errors = 0, consecutive = 0;
 for (const p of picks.slice(0, LIMIT)) {
   const r = await draftItem(db, p.row.item, p.row.source, entityId);
   if (r.outcome === "error") {
@@ -97,10 +98,11 @@ for (const p of picks.slice(0, LIMIT)) {
     continue;
   }
   consecutive = 0;
-  if (r.outcome === "drafted") drafted++;
+  if (r.outcome === "published") published++;
+  else if (r.outcome === "held") held++;
   else if (r.outcome === "out_of_scope") rejected++;
   else failed++;
   console.log(`  ${r.outcome.padEnd(12)} ${p.name} ${p.row.item.version}`);
 }
-console.log(`\nbackfill: drafted ${drafted}, model said out of scope ${rejected}, failed (flagged for you) ${failed}, errors ${errors}. Review them in /admin.`);
+console.log(`\nbackfill: published ${published}, held by checks ${held}, model said out of scope ${rejected}, model call failed ${failed}, errors ${errors}. Audit in /admin.`);
 process.exit(0);

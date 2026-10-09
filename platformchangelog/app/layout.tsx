@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
   openGraph: { siteName: SITE_NAME, type: "website" },
   description:
-    "What shipped in platform engineering, developer experience and DevOps, and what it changes for platform teams. Vendor-neutral, human-reviewed.",
+    "What shipped in platform engineering, developer experience and DevOps, and what it changes for platform teams. Vendor-neutral, every entry linked to its source.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <Tracker />
         <main>{children}</main>
         <footer className="site">
-          Every entry is drafted by software from a public source and reviewed by a person before it appears.{" "}
+          Entries are summarized automatically from the linked public source and corrected when we get one wrong.{" "}
           <a href="/about">How this works</a>.
         </footer>
       </body>

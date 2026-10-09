@@ -7,7 +7,7 @@
 | Owner | CT |
 | Audience | CT, and anyone who runs this later |
 
-A vendor-neutral registry and feed for platform engineering, developer experience and DevOps in the AI age. Software drafts entries from an allow-list of public sources; a person approves every one before it is published.
+A vendor-neutral registry and feed for platform engineering, developer experience and DevOps in the AI age. Software writes entries from an allow-list of public sources and publishes them automatically; an editor audits after publication.
 
 > This folder is self-contained and meant to become its own repository. It sits inside `sfdx-falcon` only because that was the repo attached to the session that built it.
 
@@ -15,7 +15,7 @@ A vendor-neutral registry and feed for platform engineering, developer experienc
 
 1. **The feed is a crowded market; the registry is not.** Lead with tool pages. See [01](docs/01-market-and-name.md).
 2. **Volume is lower than ai-tldr.** 8 repos produced 8 summary-worthy releases in 30 days. Daily volume comes from blogs.
-3. **Nothing auto-publishes.** The only path to public is Approve in `/admin`.
+3. **Feed items auto-publish (project decision, 2026-10-09), with three safeguards.** The model can never tag an entry Major; deterministic checks hold anything with no source link, runaway length, markup, links, dashes or hype words; the prompt carries the fixes from the evals. `/admin` is the after-the-fact audit: edit, Mark Major, Unpublish. Practical notes stay human-only.
 
 ## Docs
 
@@ -35,7 +35,7 @@ npm run db:push                 # create tables from src/db/schema.ts
 npm run seed                    # load data/sources.json and data/entities.json
 npm run ingest:dry              # fetch + triage only: no DB, no LLM
 npm run ingest                  # fetch, store, draft up to MAX_LLM_CALLS_PER_RUN
-npm run dev                     # http://localhost:3000, review at /admin
+npm run dev                     # http://localhost:3000, audit at /admin
 npm run digest > digest.md      # weekly outline
 npm run backfill                # one-time launch backfill: dry run lists one draft per tool; add --run to draft
 npm run compare                 # opus 5.5 vs haiku 4.5 on 12 real items, read-only -> reports/
@@ -56,6 +56,7 @@ src/lib/admin-queries.ts insights, suggestions, full tool list
 src/ingest/normalize.ts feed parsing, URL canonicalization, release triage
 src/ingest/prefilter.ts keyword gate for broad feeds
 src/ingest/summarize.ts the one LLM call
+src/ingest/publish-checks.ts deterministic gate before anything goes live
 scripts/                ingest, seed, digest
 data/                   hardcoded sources and registry
 .github/workflows/      3-hourly ingest cron
@@ -85,7 +86,7 @@ Run on 2026-10-06 against a local Postgres 16:
 | Fetch, normalize, dedupe, triage | ✅ verified on real GitHub feeds |
 | Blog RSS feeds | ⚠️ the build sandbox's network policy blocked these five hosts, so they were not fetched here. The URLs were confirmed working from a normal network on 2026-09-22. Confirm on day 1 with `npm run ingest:dry` |
 | LLM summarization | ⚠️ typechecked against the current SDK, not run live (no API key in the build environment). First real run should use `MAX_LLM_CALLS_PER_RUN=10` |
-| Admin review and publish | ✅ verified in a browser |
+| Auto-publish and admin audit | ✅ publish checks unit-tested; publish path verified against Postgres with a stubbed model call (2026-10-09). Not yet run with a live model |
 | Sponsorship | ⚙️ schema and rendering slots only; no admin UI for placements |
 | Entity descriptions | ⚠️ starter drafts; verify each before launch |
 

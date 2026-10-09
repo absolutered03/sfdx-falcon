@@ -38,7 +38,8 @@ export type ItemKind = (typeof ITEM_KINDS)[number];
 export const IMPACTS = ["notable", "major"] as const;
 export type Impact = (typeof IMPACTS)[number];
 
-// Flags the LLM may raise. They are hints for the reviewer, never shown publicly as-is.
+// Flags the LLM may raise. Shown in /admin, never publicly. The system adds two of its
+// own outside this list: llm_failed and held_by_checks.
 export const FLAGS = [
   "vendor_marketing",
   "unverified_claim",
@@ -51,10 +52,10 @@ export type Flag = (typeof FLAGS)[number];
 
 export const ITEM_STATUSES = [
   "pending_llm", // fetched and passed the prefilter, waiting for the summarizer
-  "draft", // summarized, waiting for a human
+  "draft", // held: failed a publish check or the model call failed; off the site
   "out_of_scope", // prefilter or LLM said no; kept so it is never re-fetched
   "logged", // routine patch release: version, date and link only, no generated text.
   //           Shown in an entity's release history, never in the feed.
   "approved", // public
-  "rejected", // human said no
+  "rejected", // an editor unpublished or rejected it
 ] as const;

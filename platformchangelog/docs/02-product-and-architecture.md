@@ -11,8 +11,8 @@
 
 1. A **vendor-neutral registry** of platform-engineering tools, platforms, MCP servers and recurring reports, each with release history, short comparisons and linked case notes.
 2. A **rolling feed** of what shipped, each entry tagged by category and impact, summarized in plain English with a separate "for platform teams" line.
-3. A **weekly digest** assembled from the week's approved entries, with a hand-written intro.
-4. **Software drafts, a person publishes.** Ingestion only extracts and drafts; nothing is public until it is approved in `/admin`.
+3. A **weekly digest** assembled from the week's published entries, with a hand-written intro.
+4. **Software publishes, an editor audits** (project decision, CT, 2026-10-09; it replaced "software drafts, a person publishes"). Feed items go live without review, capped at notable, after deterministic checks. Practical notes, the digest intro and Major tags stay human.
 5. **Scope is narrow on purpose**: IDPs and portals, AI agents operating on the platform, CI/CD, observability, supply chain, cost and governance, DX data, and (added 2026-10-08) enterprise app platforms such as Salesforce plus cloud provider announcements that touch the space, AWS first. No model releases, no consumer AI.
 6. **Sponsorship is designed in, not bolted on**: a typed placement with its own slot, label and conflict rules.
 7. Public, read-only, no accounts. One basic-auth admin path.
@@ -56,7 +56,7 @@ erDiagram
 | `sponsors`, `placements` | Future revenue | `conflict_entity_slugs` keeps a sponsor off pages for products it sells or competes with. |
 | `digests`, `digest_items` | What went out each week | Intro is human-only. |
 
-**Item lifecycle**: `pending_llm` (passed prefilter) -> `draft` (summarized) -> `approved` or `rejected` (human). Side exits: `out_of_scope` (prefilter or model said no; kept so it is never refetched) and `logged` (routine patch release: version, date and link only, shown on the tool page, never in the feed, no generated text).
+**Item lifecycle**: `pending_llm` (passed prefilter) -> `approved` (summarized, passed the publish checks, public as notable; `approved_at` set) or `draft` (held: a check failed or the model call failed; off the site). An editor can publish a held item, edit or raise a published one, or move either to `rejected` (unpublished). Side exits: `out_of_scope` (prefilter or model said no; kept so it is never refetched) and `logged` (routine patch release: version, date and link only, shown on the tool page, never in the feed, no generated text).
 
 ## Ingestion flow
 
@@ -71,11 +71,13 @@ flowchart LR
   E -- routine patch --> L[logged]
   E -- candidate --> P[pending_llm]
   P --> F[LLM: one call, structured output<br/>capped per run]
-  F -- in scope --> G[draft]
+  F -- in scope --> K{Publish checks<br/>link, length, markup, dashes, hype}
   F -- out of scope --> O
-  F -- refusal or bad output --> G
-  G --> H[/admin: human edits, approves or rejects/]
-  H --> I[Public feed, tool pages, digest]
+  F -- refusal or bad output --> G[draft: held, off the site]
+  K -- fail --> G
+  K -- pass --> I[Public as notable<br/>feed, tool pages, digest]
+  I -.-> H[/admin audit: edit, Mark Major, Unpublish/]
+  G -.-> H
 ```
 
 What each guard is for:
@@ -83,19 +85,19 @@ What each guard is for:
 - **Allow-list only.** No URL is fetched unless it is a `sources` row.
 - **Plain text only.** Feed HTML is stripped before storage, so no markup from a source reaches the page; React escapes everything rendered.
 - **Deterministic triage before the model.** Found against real feeds on 2026-10-06: Backstage ships weekly `-next.N` pre-releases, Argo CD cuts the same patch on three branches at once, Crossplane and Kyverno publish chart and API-module tags. All filtered without a model. Patch releases that mention a CVE or security still go to the model.
-- **The model sees source text as declared, untrusted data.** It cannot choose a URL, can only link entities from the list it is given (enforced again in code), and its output is a draft. The worst a poisoned feed item can do is produce a bad draft that you reject.
-- **Failure goes to a human, not to the bin.** A refusal or schema failure becomes a draft flagged `llm_failed` with no generated text.
+- **The model sees source text as declared, untrusted data.** It cannot choose a URL, can only link entities from the list it is given (enforced again in code), and it can never tag an entry Major. Links or markup in its output hold the item. The worst a poisoned feed item can do is publish a wrong notable entry, which the audit removes.
+- **Failure is held, not published and not binned.** A refusal or schema failure becomes a held draft flagged `llm_failed` with no generated text; a failed publish check is flagged `held_by_checks` with the reason in `status_reason`.
 
 ## Pages
 
 | Route | What it shows | Notes |
 |---|---|---|
-| `/` | Feed of approved items, newest first; category chips; Major only, Releases, Case studies, Postmortems toggles | One sponsored slot after the fifth item, labelled, only when a placement is active |
+| `/` | Feed of published items, newest first; category chips; Major only, Releases, Case studies, Postmortems toggles | One sponsored slot after the fifth item, labelled, only when a placement is active |
 | `/tools` | Registry grouped by category, with each tool's **current version** and its date | A tool is listed only once it has something to show: a known release, an approved entry, or practical notes. Tracked-but-empty tools stay unlisted and their pages return 404 |
 | `/tools/[slug]` | Current version in the header, description, practical notes, release history (summarized and logged), alternatives with one-line notes, case notes and incidents, other coverage | The SEO page. Sponsor sidebar honours conflicts |
 | `/about` | Methodology, impact definitions, sponsorship policy, corrections | Public version of [04](04-editorial-rules.md) |
 | `/search?q=` | Global search from the header: matching tools, releases, approved entries | Not indexed. Each human search is logged with the number of tools it found |
-| `/admin` | Review queue with editable fields, the "model said out of scope" list to catch false negatives, manual add form | Basic auth in `proxy.ts`, re-checked inside every server action |
+| `/admin` | Audit: entries published in the last 14 days (Edit, Mark Major when the model suggested it, Unpublish), entries held by the checks, the "model said out of scope" list to catch false negatives, manual add form | Basic auth in `proxy.ts`, re-checked inside every server action |
 | `/admin/insights` | Last 7, 30 or 90 days: page views, visits, median time on page, searches that found no tool, top searches, registry filters, outbound clicks by tool and host, pages | First-party events only |
 | `/admin/tools` | "Searched for, not covered" suggestions with one-click Track again, Add or Dismiss; every tracked tool with feed health and an Untrack button; the "known, untracked" list with Track; an Add a tool form | Tools added here live in the database only. Copy them into `data/entities.json` to keep them in the repo |
 | Digest | `npm run digest` prints Markdown for the newsletter tool | Deliberately not a page in v1 |

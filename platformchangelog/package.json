@@ -13,7 +13,8 @@
     "ingest:dry": "tsx --env-file-if-exists=.env scripts/ingest.ts --dry-run",
     "digest": "tsx --env-file-if-exists=.env scripts/digest.ts",
     "compare": "tsx --env-file-if-exists=.env scripts/compare-models.ts",
-    "backfill": "tsx --env-file-if-exists=.env scripts/backfill.ts"
+    "backfill": "tsx --env-file-if-exists=.env scripts/backfill.ts",
+    "test": "tsx --test src/**/*.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",

@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { getDb, schema } from "@/db/client";
@@ -14,7 +14,11 @@ async function assertAdmin() {
 
 const str = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
 
-/** Publish an item with whatever the editor changed. This is the only path to "approved". */
+/**
+ * Save an editor's changes and make sure the item is public: edits a published entry,
+ * publishes a held one, or overrules the model on an out-of-scope one. The only path to
+ * Major, since automatic publishing caps impact at notable.
+ */
 export async function approveItem(fd: FormData) {
   await assertAdmin();
   const db = getDb();
@@ -34,6 +38,7 @@ export async function approveItem(fd: FormData) {
     kind,
     categories,
     reviewedAt: new Date(),
+    approvedAt: sql`coalesce(${schema.items.approvedAt}, now())`,
   }).where(eq(schema.items.id, id));
 
   // Replace entity links with what the editor typed (comma-separated slugs).
@@ -46,15 +51,25 @@ export async function approveItem(fd: FormData) {
   revalidatePath("/admin");
 }
 
-export async function rejectItem(fd: FormData) {
+/** One click for the common audit fix: the model suggested Major and the editor agrees. */
+export async function markMajor(fd: FormData) {
   await assertAdmin();
   await getDb().update(schema.items)
-    .set({ status: "rejected", reviewedAt: new Date(), statusReason: `editor: ${str(fd, "reason") || "rejected"}` })
+    .set({ impact: "major", reviewedAt: new Date() })
     .where(eq(schema.items.id, Number(str(fd, "id"))));
   revalidatePath("/admin");
 }
 
-/** For reports, postmortems and case studies found outside the feeds. The next ingest run drafts it. */
+/** Takes an entry off the site (or rejects a held one). Kept, so it is never re-fetched. */
+export async function rejectItem(fd: FormData) {
+  await assertAdmin();
+  await getDb().update(schema.items)
+    .set({ status: "rejected", reviewedAt: new Date(), statusReason: `editor: ${str(fd, "reason") || "unpublished"}` })
+    .where(eq(schema.items.id, Number(str(fd, "id"))));
+  revalidatePath("/admin");
+}
+
+/** For reports, postmortems and case studies found outside the feeds. The next ingest run writes it up and publishes it. */
 export async function addManualItem(fd: FormData) {
   await assertAdmin();
   const excerpt = stripHtml(str(fd, "excerpt")).slice(0, EXCERPT_LIMIT);

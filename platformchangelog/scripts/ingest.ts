@@ -2,10 +2,12 @@
 //
 //   fetch (allow-listed sources only) -> normalize -> dedupe on canonical URL
 //   -> deterministic prefilter -> store as pending_llm
-//   -> summarize up to MAX_LLM_CALLS_PER_RUN -> store as draft for human review
+//   -> summarize up to MAX_LLM_CALLS_PER_RUN -> publish checks -> public, or held
 //
-// Nothing here publishes. The only way an item becomes public is a human pressing
-// Approve in /admin.
+// Feed items publish without human review (project decision, 2026-10-09). The model
+// never awards Major, and an item that fails a deterministic check is held as a draft
+// and stays off the site. /admin is the after-the-fact audit: edit, raise to Major,
+// unpublish.
 //
 // Usage:
 //   npm run ingest           full run against DATABASE_URL
@@ -194,7 +196,7 @@ async function summarizePhase(db: ReturnType<typeof getDb>) {
     .orderBy(desc(schema.items.publishedAt))
     .limit(MAX_LLM_CALLS);
 
-  let calls = 0, drafted = 0, rejected = 0, failed = 0, consecutiveErrors = 0;
+  let calls = 0, published = 0, held = 0, rejected = 0, failed = 0, consecutiveErrors = 0;
   for (const { item, source } of queue) {
     calls++;
     const r = await draftItem(db, item, source, entityId);
@@ -208,11 +210,12 @@ async function summarizePhase(db: ReturnType<typeof getDb>) {
       continue;
     }
     consecutiveErrors = 0;
-    if (r.outcome === "drafted") drafted++;
+    if (r.outcome === "published") published++;
+    else if (r.outcome === "held") held++;
     else if (r.outcome === "out_of_scope") rejected++;
     else failed++;
   }
-  return { calls, drafted, rejected, failed };
+  return { calls, published, held, rejected, failed };
 }
 
 async function main() {
@@ -223,9 +226,9 @@ async function main() {
   // Analytics retention: 180 days, then gone.
   await db.delete(schema.events).where(lt(schema.events.at, new Date(Date.now() - 180 * 86_400_000)));
   const backlog = await db.$count(schema.items, eq(schema.items.status, "pending_llm"));
-  const awaitingReview = await db.$count(schema.items, eq(schema.items.status, "draft"));
+  const heldTotal = await db.$count(schema.items, eq(schema.items.status, "draft"));
   console.log(
-    `ingest: ${inserted} new items | LLM calls ${s.calls}/${MAX_LLM_CALLS} (drafted ${s.drafted}, out of scope ${s.rejected}, failed ${s.failed}) | backlog ${backlog} | awaiting review ${awaitingReview}`,
+    `ingest: ${inserted} new items | LLM calls ${s.calls}/${MAX_LLM_CALLS} (published ${s.published}, held ${s.held}, out of scope ${s.rejected}, failed ${s.failed}) | backlog ${backlog} | held in total ${heldTotal}`,
   );
   process.exit(0);
 }

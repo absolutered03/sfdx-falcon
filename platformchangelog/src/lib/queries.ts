@@ -163,24 +163,28 @@ export async function getPlacement(slot: "feed_inline" | "entity_sidebar", opts:
   );
 }
 
-/** Review queue: drafts first, then what the LLM threw out (a human can overrule it). */
-export async function getReviewQueue() {
+/**
+ * The after-the-fact audit in /admin: what went live automatically (newest first), what
+ * the publish checks held back, and what the model threw out (an editor can overrule it).
+ */
+export async function getAuditQueue() {
   const db = getDb();
-  const rows = await db
-    .select({ item: items, sourceName: sources.name, sourceTier: sources.tier })
-    .from(items)
-    .leftJoin(sources, eq(items.sourceId, sources.id))
-    .where(eq(items.status, "draft"))
-    .orderBy(desc(items.publishedAt))
-    .limit(50);
-  const llmRejected = await db
-    .select({ item: items, sourceName: sources.name, sourceTier: sources.tier })
-    .from(items)
-    .leftJoin(sources, eq(items.sourceId, sources.id))
+  const select = () =>
+    db.select({ item: items, sourceName: sources.name, sourceTier: sources.tier }).from(items).leftJoin(sources, eq(items.sourceId, sources.id));
+  const published = await select()
+    .where(and(eq(items.status, "approved"), isNotNull(items.approvedAt), gte(items.approvedAt, new Date(Date.now() - 14 * 86_400_000))))
+    .orderBy(desc(items.approvedAt))
+    .limit(100);
+  const held = await select().where(eq(items.status, "draft")).orderBy(desc(items.publishedAt)).limit(50);
+  const llmRejected = await select()
     .where(and(eq(items.status, "out_of_scope"), isNotNull(items.llmModel)))
     .orderBy(desc(items.publishedAt))
     .limit(20);
-  return { drafts: await attachEntities(rows), llmRejected: await attachEntities(llmRejected) };
+  return {
+    published: await attachEntities(published),
+    held: await attachEntities(held),
+    llmRejected: await attachEntities(llmRejected),
+  };
 }
 
 // ---------------------------------------------------------------------------
