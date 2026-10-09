@@ -124,7 +124,14 @@ export async function getEntityPage(slug: string) {
   return {
     entity,
     current,
-    releases: linked.filter((r) => r.item.kind === "release"),
+    // Newest first; within one day, highest version first (projects patch several
+    // lines on the same day, and the current line should lead).
+    releases: linked
+      .filter((r) => r.item.kind === "release")
+      .sort((a, b) =>
+        b.item.publishedAt.toISOString().slice(0, 10).localeCompare(a.item.publishedAt.toISOString().slice(0, 10)) ||
+        compareVersions(b.item.version ?? "0", a.item.version ?? "0"),
+      ),
     caseNotes: linked.filter((r) => ["case_study", "incident"].includes(r.item.kind) && r.item.status === "approved"),
     coverage: linked.filter(
       (r) => !["release", "case_study", "incident", "sponsored"].includes(r.item.kind) && r.item.status === "approved",

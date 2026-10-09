@@ -65,6 +65,14 @@ async function fetchSource(s: SourceSeed): Promise<FetchResult> {
 }
 
 // Decide, without a model, what happens to a freshly fetched item.
+// GitHub release names are often a bare version ("v2.4.2"), meaningless in a mixed feed.
+// Prefix the tool name unless the title already carries it ("GitLab 19.4 release notes").
+function releaseTitle(title: string, toolName?: string): string {
+  if (!toolName) return title;
+  const firstWord = toolName.toLowerCase().split(/\s+/)[0];
+  return title.toLowerCase().includes(firstWord) ? title : `${toolName} ${title}`;
+}
+
 type Triage = { status: "pending_llm" | "out_of_scope" | "logged"; reason: string };
 
 function triage(s: SourceSeed, it: RawItem): Triage {
@@ -112,8 +120,9 @@ async function dryRun() {
 
 async function fetchPhase(db: ReturnType<typeof getDb>) {
   const sources = await db.select().from(schema.sources).where(eq(schema.sources.active, true));
-  const entityRows = await db.select({ id: schema.entities.id, slug: schema.entities.slug }).from(schema.entities);
+  const entityRows = await db.select({ id: schema.entities.id, slug: schema.entities.slug, name: schema.entities.name }).from(schema.entities);
   const entityId = new Map(entityRows.map((e) => [e.slug, e.id]));
+  const entityName = new Map(entityRows.map((e) => [e.slug, e.name]));
   let inserted = 0;
 
   for (const s of sources) {
@@ -137,7 +146,7 @@ async function fetchPhase(db: ReturnType<typeof getDb>) {
           .values({
             sourceId: s.id,
             url: it.url,
-            title: it.title,
+            title: isRelease ? releaseTitle(it.title, s.entitySlug ? entityName.get(s.entitySlug) : undefined) : it.title,
             publishedAt: it.publishedAt,
             excerpt: it.excerpt,
             contentHash: it.contentHash,

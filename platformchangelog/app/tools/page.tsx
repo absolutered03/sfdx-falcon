@@ -16,7 +16,7 @@ export default async function Tools() {
         return (
           <section key={c}>
             <h2 style={{ fontSize: 18 }}>{CATEGORY_LABELS[c]}</h2>
-            <table>
+            <table className="registry">
               <thead>
                 <tr><th>Tool</th><th>What it is</th><th>Current</th><th>Governance</th></tr>
               </thead>

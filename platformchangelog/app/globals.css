@@ -32,3 +32,16 @@ textarea { min-height: 70px; }
 .row { display: flex; gap: 8px; } .row > * { flex: 1; }
 button { font: inherit; padding: 6px 14px; cursor: pointer; }
 .flags { color: var(--major); font-size: 13px; }
+
+/* Phones: registry rows become stacked cards; filter chips scroll sideways. */
+@media (max-width: 640px) {
+  table.registry thead { display: none; }
+  table.registry tr { display: grid; grid-template-columns: 1fr auto; column-gap: 12px; border-top: 1px solid var(--line); padding: 10px 0; }
+  table.registry td { border: 0; padding: 0; width: auto !important; }
+  table.registry td:nth-child(1) { font-weight: 600; }
+  table.registry td:nth-child(3) { grid-column: 2; grid-row: 1; text-align: right; }
+  table.registry td:nth-child(2) { grid-column: 1 / -1; margin-top: 4px; }
+  table.registry td:nth-child(4) { grid-column: 1 / -1; font-size: 13px; margin-top: 2px; }
+  .filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .filters a, .filters label { flex: 0 0 auto; }
+}
