@@ -1,0 +1,191 @@
+{
+  "flux@v2.9.6": [
+    {"type": "fixed", "text": "helm-controller no longer reapplies chart CRDs on every upgrade when server-side apply is enabled with the default Create policy."},
+    {"type": "fixed", "text": "HelmReleases left with a drifted Ready=Unknown condition after a failed status patch are recovered."},
+    {"type": "fixed", "text": "helm-controller ignores NotFound when deleting the HelmChart."},
+    {"type": "fixed", "text": "source-controller normalizes Azure Blob listing ETags, so unchanged containers are not re-downloaded on every reconcile."},
+    {"type": "fixed", "text": "source-controller evicts stale Helm repository index entries from the cache. Repositories with frequently changing indexes no longer fail with \"Cache is full\"."},
+    {"type": "security", "text": "kustomize-controller extends SOPS decryption error redaction to spec.postBuild.substituteFrom values. Substituted secrets echoed back in API validation errors are masked out of status conditions and events."},
+    {"type": "added", "text": "Opt-in DisableCommitStatusEvent feature gate in kustomize-controller."}
+  ],
+  "helm@v4.3.0": [
+    {"type": "added", "text": "Duration functions in chart templates."},
+    {"type": "added", "text": "Debug logging in the engine when lookup returns empty."},
+    {"type": "added", "text": "Ownership verification before deleting resources during uninstall."},
+    {"type": "added", "text": "SOURCE_DATE_EPOCH is honored for chart archives, for reproducible packaging."},
+    {"type": "added", "text": "rollback --description flag to record the reason for a rollback."},
+    {"type": "changed", "text": "Resync period lowered from one hour to 3 minutes."},
+    {"type": "changed", "text": "Status computation runs concurrently to prevent multi-minute delays."},
+    {"type": "changed", "text": "k8s.io dependency group bumped to 0.37.0."},
+    {"type": "fixed", "text": "Values files that end exactly at a 4096-byte boundary are no longer dropped by the loader."},
+    {"type": "fixed", "text": "StampModTimes timestamps normalized to UTC and truncated, with a Chart.lock reproducibility test."},
+    {"type": "fixed", "text": "Provenance verification supports GnuPG keybox (pubring.kbx) keyrings."},
+    {"type": "fixed", "text": "Regression: registry messages in template and show go to stderr again instead of stdout."},
+    {"type": "fixed", "text": "Zero-width spaces removed from the plugin name comment."}
+  ],
+  "helm@v4.2.4": [
+    {"type": "security", "text": "google.golang.org/grpc bumped from 1.80.0 to 1.82.1 for GO-2026-6061."},
+    {"type": "security", "text": "go.opentelemetry.io/otel bumped to v1.44.0 for GO-2026-5158."},
+    {"type": "fixed", "text": "Better error reporting for helm template --debug with --show-only."},
+    {"type": "fixed", "text": "Logs are fetched from all containers in test pods."},
+    {"type": "fixed", "text": "Provenance: error returns checked in Digest and encodeRelease."},
+    {"type": "fixed", "text": "Panic on repeated IsReachable calls."},
+    {"type": "fixed", "text": "helm push to a registry with token auth sets the [pull,push] scope."},
+    {"type": "fixed", "text": "Missing conflict retry with server-side apply."},
+    {"type": "fixed", "text": "Extra field in gzipped packages is formatted properly."},
+    {"type": "fixed", "text": "Vanishing empty lines."},
+    {"type": "fixed", "text": "Registry client is passed to downloader.Manager in upgrade."}
+  ],
+  "k8sgpt@v0.4.39": [
+    {"type": "added", "text": "--resource flag to analyze a single resource."},
+    {"type": "added", "text": "ValidatingAdmissionPolicy analyzer."},
+    {"type": "security", "text": "google.golang.org/grpc updated to v1.83.2 (security advisory)."},
+    {"type": "fixed", "text": "Resource names in event-derived failures are anonymised."},
+    {"type": "fixed", "text": "An unsupported scaleTargetRef is no longer also reported as missing."},
+    {"type": "fixed", "text": "Service events are filtered by involved object kind."},
+    {"type": "fixed", "text": "Guard against empty completion choices in the OpenAI client."},
+    {"type": "fixed", "text": "ReplicaFailure is reported regardless of replica count."},
+    {"type": "fixed", "text": "ClusterRole references in RoleBindings are resolved."}
+  ],
+  "openfeature@v0.17.0": [
+    {"type": "changed", "breaking": true, "text": "Server-side sync metrics renamed: feature_flag.flagd.sync.active_streams is now feature_flag.flagd.sync.server.active_streams, and feature_flag.flagd.sync.stream.duration is now feature_flag.flagd.sync.server.stream.duration. Client metrics are added alongside."},
+    {"type": "security", "text": "go.opentelemetry.io/otel/sdk updated to v1.45.0 (security)."},
+    {"type": "added", "text": "gzip compression for OFREP evaluation responses."},
+    {"type": "added", "text": "The outbound sync channel is instrumented when flagd runs as a client."},
+    {"type": "fixed", "text": "flagd waits for flag state before reporting ready."}
+  ],
+  "kubernetes-mcp-server@v0.0.67": [
+    {"type": "removed", "breaking": true, "text": "SSE MCP transport removed."},
+    {"type": "added", "text": "Tekton toolset gains filtered logs and pipeline context."},
+    {"type": "changed", "text": "pods_top and nodes_top tools are hidden when the Metrics API is unavailable."},
+    {"type": "changed", "text": "Kubeconfig injection option narrowed."},
+    {"type": "fixed", "text": "JWT assertions are minted fresh every time."},
+    {"type": "fixed", "text": "Kubernetes roundtripper handles subresources and resources without Kind set."},
+    {"type": "fixed", "text": "Assorted minor bugfixes (#1360)."},
+    {"type": "changed", "text": "Dependency bumps, including tektoncd/pipeline 1.15.0 and helm.sh/helm/v3 3.21.4."}
+  ],
+  "kyverno@v1.19.1": [
+    {"type": "security", "text": "Go bumped to 1.26.6 and x/net updated to resolve CVE-2026-39821."},
+    {"type": "security", "text": "Go updated to address CVE-2026-56853."},
+    {"type": "security", "text": "IVPol PolicyException scope bypass fixed (GHSA-5cjf-wwfg-pj4c)."},
+    {"type": "security", "text": "HTTP blocklist applied to the apiCall.service executor; the egress proxy path and CABundle branch are hardened; an IPv6-embedded-IPv4 blocklist bypass is closed; urlPath hardening backported."},
+    {"type": "fixed", "text": "Missing autogen webhook expansion for NamespacedValidatingPolicy."},
+    {"type": "fixed", "text": "Data race in image evaluator prefetch."},
+    {"type": "fixed", "text": "PolicyException CEL match conditions are validated."},
+    {"type": "changed", "text": "Phase 1 deprecation warning plumbing, with warning enforcement in the CLI."}
+  ],
+  "crossplane@v2.4.2": [
+    {"type": "fixed", "text": "Ownership of ServiceAccounts is correctly transferred to newly active package revisions (#7838)."},
+    {"type": "fixed", "text": "A claim fails closed when it cannot list its XRD."},
+    {"type": "security", "text": "go.opentelemetry.io/otel/exporters/otlp/otlptrace updated to v1.45.0 (security)."},
+    {"type": "changed", "text": "crossplane-runtime dependency bumped to v2.4.2."}
+  ],
+  "opa@v1.21.1": [
+    {"type": "fixed", "text": "Compiler regression from v1.21.0: a comprehension using some ... in or every, nested inside an object or set literal, was treated as ground and skipped rewriting. some ... in failed with rego_unsafe_var_error and every caused a compiler panic. Array literals were not affected."}
+  ],
+  "opentofu@v1.13.1": [
+    {"type": "fixed", "text": "tofu show -json <planfile> works again when ephemeral resources are present in the configuration."},
+    {"type": "fixed", "text": "Ephemeral output values are always re-evaluated during apply instead of sometimes using stale values from the plan phase."}
+  ],
+  "backstage@v1.55.3": [
+    {"type": "fixed", "text": "TechDocs generation for documented MkDocs Markdown extension configurations."}
+  ],
+  "jenkins@2.585": [
+    {"type": "changed", "text": "Experimental Jenkins pages standardised: the side panel scrolls independently and the build bar is sticky."},
+    {"type": "changed", "text": "New Manage Jenkins UI enabled by default."},
+    {"type": "changed", "breaking": true, "text": "Minimum required Remoting version raised from 3176.v207ec082a_8c0 to 3256.3258.v858f3c9a_f69d. Agents on older Remoting need updating."},
+    {"type": "added", "text": "Filtering on the experimental Job page."},
+    {"type": "changed", "text": "Cloud display name shown instead of its internal name."},
+    {"type": "fixed", "text": "Sortable date column ordering for 12 AM times."},
+    {"type": "fixed", "text": "Missing return after sendError in doDoFingerprintCheck."},
+    {"type": "fixed", "text": "Missing badges on header dropdown menu items."},
+    {"type": "fixed", "text": "Missing New Item button in the new dashboard view."}
+  ],
+  "servicenow-sdk@4.13.0": [
+    {"type": "added", "text": "DatabaseView Fluent API for sys_db_view records, with an SDK guide, IDE autocomplete on table field references and app-prefix diagnostics."},
+    {"type": "added", "text": "MFA challenge support for basic-auth login. now-sdk prompts for a 6-digit TOTP code when the instance requires one."},
+    {"type": "added", "text": "Playbook Fluent gains variant overrides, a Go Back activity, decision-branch ideal-path support and public playbook support."},
+    {"type": "added", "text": "--timeout flag on long-running commands."},
+    {"type": "fixed", "text": "OAuth session cookie replay that could make app installs fail silently on instances that restrict API session reuse."}
+  ],
+  "gitlab@19.4": [
+    {"type": "added", "text": "Governance for GitLab MCP server tools from the same group and project Duo settings as internal tools. Read-only tools default to Always Allow, write and delete tools default to Always Ask."},
+    {"type": "added", "text": "Restrict access to MCP servers (beta): allow or deny an entire external MCP server or individual tools on it. Premium and Ultimate."}
+  ],
+  "tekton@v1.17.0": [
+    {"type": "added", "text": "reconcile.write_intent span attribute (no-op, status-only, metadata-only, metadata-and-status) on PipelineRun and TaskRun reconcile spans, so operators can tell which reconciliations intend an etcd write."},
+    {"type": "added", "text": "Pod infrastructure failure reasons from Warning events (FailedMount, FailedScheduling, FailedCreatePodSandBox) are surfaced onto the run status."}
+  ],
+  "pulumi@v3.268.0": [
+    {"type": "added", "text": "Engine negotiates OutputValues on Invoke, so SDKs can pass dependency-carrying values in args and receive them back. Gated by the accepts_outputs_in_invoke handshake capability."},
+    {"type": "added", "text": "version, whoami and install in the generated Automation APIs for NodeJS, Python and Go."},
+    {"type": "fixed", "text": "Elided asset contents are restored from prior state when a provider echoes assets back from refresh or update."},
+    {"type": "fixed", "text": "Resource transforms declared on an ancestor component apply to resources parented under a resource read."},
+    {"type": "fixed", "text": "PCL unifies two recursive object types, or a map with an object, to the same finite type on every run instead of overflowing the stack."},
+    {"type": "fixed", "text": "Snapshot integrity error when untargeted steps change dependencies in the program."},
+    {"type": "fixed", "text": "Dynamic providers in NodeJS and Python fall back to the inputs field of a Read request when properties is empty, so Get keeps working."},
+    {"type": "fixed", "text": "Plugins download from Git repositories whose version tags have no v prefix."},
+    {"type": "fixed", "text": "Language host process leak when the schema loader boots a plugin that runs in a language host."},
+    {"type": "fixed", "text": "Generated NodeJS docs link @pulumi/pulumi types to their TypeDoc pages."}
+  ],
+  "sap-btp-terraform@v1.27.0": [
+    {"type": "added", "text": "action_update_global_account."},
+    {"type": "fixed", "text": "Function label extraction supports legacy labels."},
+    {"type": "fixed", "text": "Fail fast when amount is set on non-quota entitlement plans."},
+    {"type": "fixed", "text": "Drift for role collection group and attribute assignments with custom IAS origins."},
+    {"type": "fixed", "text": "auto_create_shadow_users added to the globalaccount trust configuration."},
+    {"type": "changed", "text": "google.golang.org/grpc bumped to 1.83.2."}
+  ],
+  "cluster-api@v1.14.3": [
+    {"type": "changed", "text": "Kubernetes version support: management cluster v1.33 to v1.37, workload cluster v1.31 to v1.37."},
+    {"type": "fixed", "text": "cluster-name label is also set on Clusters without ClusterClass."},
+    {"type": "fixed", "text": "Race in KCP proxy DialContext."},
+    {"type": "fixed", "text": "KCP tries to match the etcd member to the machine being deleted."},
+    {"type": "fixed", "text": "Machine and MachineSet handle not-found gracefully when resolving owner references."},
+    {"type": "security", "text": "grpc bumped to 1.83.2 to address security advisories."},
+    {"type": "changed", "text": "clusterctl bumps cert-manager to v1.21.2."}
+  ],
+  "argo-rollouts@v1.10.0": [
+    {"type": "fixed", "text": "Guard empty Values in the injected anti-affinity check."},
+    {"type": "fixed", "text": "Controller skips unnecessary ephemeral metadata pod listing."},
+    {"type": "fixed", "text": "desired-replicas annotation is synced during abort scale-down."},
+    {"type": "fixed", "text": "Controller logs the underlying error when newRolloutContext returns nil."},
+    {"type": "fixed", "text": "Namespace-support notification controller is selected via the self-service flag."},
+    {"type": "fixed", "text": "Log level downgraded for unconfigured notification triggers."},
+    {"type": "fixed", "text": "Panic prevented when notifications write Unstructured objects."},
+    {"type": "fixed", "text": "ALB status updates are deep-copied."},
+    {"type": "fixed", "text": "Experiments fall back to the API when the ReplicaSet lister is stale on AlreadyExists."},
+    {"type": "changed", "text": "pnpm upgraded for SBOM generation."}
+  ],
+  "kro@v0.9.4": [
+    {"type": "added", "text": "Chart aggregates a user role into the view, edit and admin ClusterRoles."},
+    {"type": "added", "text": "shortNames and categories in the RGD."},
+    {"type": "added", "text": "extraEnv support in the Helm deployment template."},
+    {"type": "added", "text": "deepMerge() CEL function for recursive nested map merging."},
+    {"type": "changed", "text": "klog is routed to zap; zap-devel is configurable in Helm."},
+    {"type": "fixed", "text": "Extended CEL env cache is keyed by schema, not just variable name."},
+    {"type": "fixed", "text": "Chart template gaps found during review."},
+    {"type": "fixed", "text": "ResourcesReady=False with reason ReconciliationSuspended when an instance is suspended."},
+    {"type": "fixed", "text": "Panic when uint or bytes CEL values reach deep-copy."},
+    {"type": "fixed", "text": "Ordered deletion works without desired-state projection, CEL evaluation, GraphRevision resolution or external observation."},
+    {"type": "security", "text": "golang.org/x/net bumped from 0.47.0 to 0.55.0 and x/crypto to 0.52.0 in the LSP server (security update groups)."}
+  ],
+  "kargo@v1.12.2": [
+    {"type": "added", "text": "Server logs admin logins, and optionally source IP and all requests."},
+    {"type": "fixed", "text": "Missing bindings for various RBAC permissions."},
+    {"type": "changed", "text": "Docs: promotion windows UI instructions."}
+  ],
+  "kargo@v1.12.0": [
+    {"type": "removed", "breaking": true, "text": "The Connect-based gRPC API is gone, as announced in v1.9.0 and v1.11.0. Migrate integrations to the REST API before upgrading and upgrade the CLI to v1.12.0 alongside the server."},
+    {"type": "removed", "breaking": true, "text": "createTargetBranch removed from the git-open-pr step. Deprecated in v1.10.0; the option never worked. Remove it from promotion steps and tasks."},
+    {"type": "added", "text": "Kargo's own Prometheus metrics."},
+    {"type": "added", "text": "Dark theme for the UI."},
+    {"type": "changed", "text": "Image discovery trusts the right timestamp."},
+    {"type": "changed", "text": "OCI packaging story rounded out."},
+    {"type": "deprecated", "text": "There will be no v1.13.0. The next minor release is v2.0.0, which replaces how Kargo stores state and how components learn about changes."}
+  ],
+  "kagent@v0.10.3": [
+    {"type": "fixed", "text": "Controller derives the full runtime image from the tag name."},
+    {"type": "changed", "text": "kagent-tools bumped to 0.3.0."}
+  ]
+}
