@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { Tracker } from "@/components/Tracker";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,7 +23,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <a href="/tools">Registry</a>
             <a href="/about">Methodology</a>
           </nav>
+          <form action="/search" role="search" className="site-search">
+            <label htmlFor="site-search" className="sr-only">Search</label>
+            <input id="site-search" name="q" type="search" placeholder="Search tools and releases" autoComplete="off" />
+          </form>
         </header>
+        <Tracker />
         <main>{children}</main>
         <footer className="site">
           Every entry is drafted by software from a public source and reviewed by a person before it appears.{" "}

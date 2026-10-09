@@ -16,9 +16,9 @@ const TRAINING_CRAWLERS = [
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      { userAgent: ANSWER_ENGINES, allow: "/", disallow: "/admin" },
+      { userAgent: ANSWER_ENGINES, allow: "/", disallow: ["/admin", "/search", "/api"] },
       { userAgent: TRAINING_CRAWLERS, disallow: "/" },
-      { userAgent: "*", allow: "/", disallow: "/admin" },
+      { userAgent: "*", allow: "/", disallow: ["/admin", "/search", "/api"] },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
   };

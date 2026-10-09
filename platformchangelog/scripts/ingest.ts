@@ -12,7 +12,7 @@
 //   npm run ingest:dry       fetch + normalize + prefilter only; no DB, no LLM, prints what it would do
 
 import { readFileSync } from "node:fs";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, lt } from "drizzle-orm";
 import { getDb, schema } from "../src/db/client";
 import {
   EXCERPT_LIMIT,
@@ -119,7 +119,13 @@ async function dryRun() {
 }
 
 async function fetchPhase(db: ReturnType<typeof getDb>) {
-  const sources = await db.select().from(schema.sources).where(eq(schema.sources.active, true));
+  // Feeds of tools moved to "known, untracked" in /admin/tools are skipped.
+  const untracked = new Set(
+    (await db.select({ slug: schema.entities.slug }).from(schema.entities).where(eq(schema.entities.tracked, false))).map((e) => e.slug),
+  );
+  const sources = (await db.select().from(schema.sources).where(eq(schema.sources.active, true))).filter(
+    (s) => !s.entitySlug || !untracked.has(s.entitySlug),
+  );
   const entityRows = await db.select({ id: schema.entities.id, slug: schema.entities.slug, name: schema.entities.name }).from(schema.entities);
   const entityId = new Map(entityRows.map((e) => [e.slug, e.id]));
   const entityName = new Map(entityRows.map((e) => [e.slug, e.name]));
@@ -214,6 +220,8 @@ async function main() {
   const db = getDb();
   const inserted = await fetchPhase(db);
   const s = await summarizePhase(db);
+  // Analytics retention: 180 days, then gone.
+  await db.delete(schema.events).where(lt(schema.events.at, new Date(Date.now() - 180 * 86_400_000)));
   const backlog = await db.$count(schema.items, eq(schema.items.status, "pending_llm"));
   const awaitingReview = await db.$count(schema.items, eq(schema.items.status, "draft"));
   console.log(

@@ -50,12 +50,13 @@ async function attachEntities<T extends { item: { id: number } }>(rows: T[]) {
  * stay tracked but unlisted, so the registry never shows an empty page.
  */
 const isVisible = sql<boolean>`(
+  ${entities.tracked} and (
   coalesce(${entities.practicalNotes}, '') <> ''
   or exists (
     select 1 from ${itemEntities} ie join ${items} i on i.id = ie.item_id
     where ie.entity_id = ${entities.id}
       and (i.status = 'approved' or (i.kind = 'release' and i.status <> 'out_of_scope'))
-  )
+  ))
 )`;
 
 
@@ -180,4 +181,45 @@ export async function getReviewQueue() {
     .orderBy(desc(items.publishedAt))
     .limit(20);
   return { drafts: await attachEntities(rows), llmRejected: await attachEntities(llmRejected) };
+}
+
+// ---------------------------------------------------------------------------
+// Site search
+// ---------------------------------------------------------------------------
+
+const VERSIONISH = /^v?\d+(\.\d+)*$/i;
+
+/**
+ * Search visible tools (every word that is not a version number must appear in the
+ * name, slug, vendor or description), plus releases and approved entries whose title
+ * or summary contains the phrase. Small registry, so tools are matched in memory.
+ */
+export async function searchSite(rawQuery: string) {
+  const q = rawQuery.trim().toLowerCase();
+  if (q.length < 2) return { tools: [], releases: [], entries: [] };
+  const words = q.split(/\s+/).filter((w) => w.length >= 2 && !VERSIONISH.test(w));
+
+  const all = await getEntityList();
+  const tools = all.filter((e) => {
+    const hay = `${e.name} ${e.slug} ${e.vendor ?? ""} ${e.description}`.toLowerCase();
+    return words.length ? words.every((w) => hay.includes(w)) : false;
+  });
+
+  const db = getDb();
+  const like = `%${q.replace(/[%_]/g, (m) => "\\" + m)}%`;
+  const releases = await db
+    .select({ item: items, slug: entities.slug, name: entities.name })
+    .from(items)
+    .innerJoin(itemEntities, eq(itemEntities.itemId, items.id))
+    .innerJoin(entities, eq(itemEntities.entityId, entities.id))
+    .where(and(eq(items.kind, "release"), ne(items.status, "out_of_scope"), eq(entities.tracked, true), sql`${items.title} ilike ${like}`))
+    .orderBy(desc(items.publishedAt))
+    .limit(20);
+  const entries = await db
+    .select({ item: items })
+    .from(items)
+    .where(and(eq(items.status, "approved"), sql`(${items.title} ilike ${like} or ${items.summary} ilike ${like})`))
+    .orderBy(desc(items.publishedAt))
+    .limit(20);
+  return { tools, releases, entries };
 }

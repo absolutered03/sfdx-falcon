@@ -95,6 +95,9 @@ export const entities = pgTable("entities", {
   governance: text("governance"), // "CNCF graduated", "vendor-owned", ...
   practicalNotes: text("practical_notes"), // markdown, human-written only
   archived: boolean("archived").notNull().default(false),
+  // false = "known but untracked": kept in the registry database, its feeds are not
+  // fetched, and it is hidden from public pages. Owned by /admin/tools, never by the seed.
+  tracked: boolean("tracked").notNull().default(true),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -201,3 +204,35 @@ export const digestItems = pgTable(
   },
   (t) => [primaryKey({ columns: [t.digestId, t.itemId] })],
 );
+
+// ---------------------------------------------------------------------------
+// First-party product analytics. Cookieless: no IP address, no user id, no
+// cross-site identifier. session_id is a random per-tab id from sessionStorage,
+// used only to count visits and time on page. Rows older than 180 days are
+// deleted by the ingest job. Traffic analytics (referrers, countries, devices)
+// come from Cloudflare Web Analytics instead.
+// ---------------------------------------------------------------------------
+export const eventTypeEnum = pgEnum("event_type", ["search", "filter", "outbound", "pageview", "engagement"]);
+
+export const events = pgTable(
+  "events",
+  {
+    id: serial("id").primaryKey(),
+    at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+    type: eventTypeEnum("type").notNull(),
+    sessionId: text("session_id"),
+    path: text("path"),
+    query: text("query"), // normalized search or filter text
+    resultCount: integer("result_count"),
+    entitySlug: text("entity_slug"), // outbound: which tool the link belonged to
+    targetHost: text("target_host"), // outbound: host only, never the full URL
+    durationMs: integer("duration_ms"), // engagement: visible time on the page
+  },
+  (t) => [index("events_type_at_idx").on(t.type, t.at)],
+);
+
+// Search terms an editor marked as "not a tool" so they stop appearing as suggestions.
+export const dismissedTerms = pgTable("dismissed_terms", {
+  term: text("term").primaryKey(),
+  dismissedAt: timestamp("dismissed_at", { withTimezone: true }).notNull().defaultNow(),
+});

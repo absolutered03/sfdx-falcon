@@ -19,7 +19,7 @@ export default async function ToolPage({ params }: { params: Params }) {
   const ad = await getPlacement("entity_sidebar", { entitySlug: slug });
 
   return (
-    <>
+    <div data-entity={entity.slug}>
       <h1 style={{ fontSize: 24, marginBottom: 4 }}>{entity.name}</h1>
       <div className="meta">
         <span>{entity.kind.replace("_", " ")}</span>
@@ -110,6 +110,6 @@ export default async function ToolPage({ params }: { params: Params }) {
           <p style={{ margin: "4px 0" }}>{ad.placement.body}</p>
         </aside>
       )}
-    </>
+    </div>
   );
 }

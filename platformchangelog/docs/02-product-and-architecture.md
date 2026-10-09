@@ -48,7 +48,9 @@ erDiagram
 | Table | Holds | Key decisions |
 |---|---|---|
 | `sources` | The allow-list: RSS/Atom feeds and GitHub repos | `tier` (primary, community, media, vendor) drives editorial weight. `keyword_filter` turns on the prefilter for broad feeds; `keyword_terms` replaces the global term list for a firehose source such as AWS. `release_policy = major_or_security` gives supporting tools light coverage. ETag and Last-Modified stored for polite polling. |
-| `entities` | The registry | `description` and `practical_notes` are human-written; the seed never overwrites notes. |
+| `entities` | The registry | `description` and `practical_notes` are human-written; the seed never overwrites notes. `tracked` is owned by `/admin/tools`, never by the seed: untracked tools keep their history but are hidden everywhere public and their feeds are skipped. |
+| `events` | First-party analytics: searches, registry filters, outbound clicks, page views, visible time | No cookies, no IP, no user agent stored. Session id is random, per tab (`sessionStorage`). Bots dropped at the door. Rows older than 180 days are deleted by the ingest job. |
+| `dismissed_terms` | Search terms an editor marked "not a tool" | Keeps them out of the suggestions list. |
 | `entity_alternatives` | One-line comparisons | Stored in both directions so either page shows it. |
 | `items` | Every fetched URL, in every state | **Release history and case notes are not separate tables**: they are items filtered by `kind` and linked through `item_entities`. One row per canonical URL is the dedupe. `llm_raw` keeps the full model output for audit. |
 | `sponsors`, `placements` | Future revenue | `conflict_entity_slugs` keeps a sponsor off pages for products it sells or competes with. |
@@ -92,8 +94,22 @@ What each guard is for:
 | `/tools` | Registry grouped by category, with each tool's **current version** and its date | A tool is listed only once it has something to show: a known release, an approved entry, or practical notes. Tracked-but-empty tools stay unlisted and their pages return 404 |
 | `/tools/[slug]` | Current version in the header, description, practical notes, release history (summarized and logged), alternatives with one-line notes, case notes and incidents, other coverage | The SEO page. Sponsor sidebar honours conflicts |
 | `/about` | Methodology, impact definitions, sponsorship policy, corrections | Public version of [04](04-editorial-rules.md) |
+| `/search?q=` | Global search from the header: matching tools, releases, approved entries | Not indexed. Each human search is logged with the number of tools it found |
 | `/admin` | Review queue with editable fields, the "model said out of scope" list to catch false negatives, manual add form | Basic auth in `proxy.ts`, re-checked inside every server action |
+| `/admin/insights` | Last 7, 30 or 90 days: page views, visits, median time on page, searches that found no tool, top searches, registry filters, outbound clicks by tool and host, pages | First-party events only |
+| `/admin/tools` | "Searched for, not covered" suggestions with one-click Track again, Add or Dismiss; every tracked tool with feed health and an Untrack button; the "known, untracked" list with Track; an Add a tool form | Tools added here live in the database only. Copy them into `data/entities.json` to keep them in the repo |
 | Digest | `npm run digest` prints Markdown for the newsletter tool | Deliberately not a page in v1 |
+
+## Analytics
+
+Two layers, no overlap:
+
+| Question | Where |
+|---|---|
+| Traffic, referrers, countries, devices, Core Web Vitals | **Cloudflare Web Analytics** (free, cookieless JS beacon). Add the snippet at deploy time. It has no custom events, so it cannot answer the questions below |
+| What people search for and filter on, which official sites they click through to, how long a page stays visible | **First-party `events` table** via `src/components/Tracker.tsx` and `POST /api/events` |
+
+Suggestions in `/admin/tools` come from searches and filters in the last 90 days. A term shows up when it names a known but untracked tool, names a tracked tool that is not public yet, or found nothing at all. Naming wins over result count: "helm" while Helm is untracked still matches Flux's description, so it counts.
 
 ## Sponsorship, designed for later
 

@@ -44,11 +44,15 @@ npm run compare                 # opus 5.5 vs haiku 4.5 on 12 real items, read-o
 ## Layout
 
 ```
-app/                    pages: feed, /tools, /tools/[slug], /about, /admin (+ server actions)
+app/                    pages: feed, /tools, /tools/[slug], /search, /about, /admin (+ server actions)
+app/admin/insights      search, filter, outbound and time-on-page reports
+app/admin/tools         suggestions from searches, track / untrack, add a tool
+app/api/events          cookieless analytics beacon
 proxy.ts                basic auth for /admin
 src/db/schema.ts        all tables
 src/lib/taxonomy.ts     categories, kinds, impacts, statuses (single source of truth)
-src/lib/queries.ts      every read the pages do
+src/lib/queries.ts      every read the public pages do, including site search
+src/lib/admin-queries.ts insights, suggestions, full tool list
 src/ingest/normalize.ts feed parsing, URL canonicalization, release triage
 src/ingest/prefilter.ts keyword gate for broad feeds
 src/ingest/summarize.ts the one LLM call
@@ -71,6 +75,7 @@ Run on 2026-10-06 against a local Postgres 16:
 | Dedupe | `npm run ingest` again | 0 new items |
 | Pages | curl each route | `/`, filters, `/tools`, `/tools/backstage` (6 logged patch releases + 4 comparisons), `/about` all 200; unknown slug 404; `/admin` 401 without credentials, 200 with |
 | Publish path | headless Chromium clicks Approve | item moved to `approved` with `reviewed_at` set; queue emptied |
+| Admin observability (2026-10-09) | headless Chromium with a normal UA, plus curl | searches, filters, outbound clicks, page views and engagement logged; curl and Googlebot searches not logged; untrack Helm gives 404, Track again gives 200 and clears the suggestion; Add created Spinnaker plus its GitHub source; Dismiss hides the term |
 | SEO surface (2026-10-08) | curl `/robots.txt`, `/sitemap.xml`, a tool page | robots allows answer engines, blocks training crawlers and `/admin`; sitemap lists 19 URLs on `https://platformchangelog.dev`; tool pages carry `og:title` / `og:description` |
 
 ## Honest status

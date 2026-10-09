@@ -45,3 +45,14 @@ button { font: inherit; padding: 6px 14px; cursor: pointer; }
   .filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
   .filters a, .filters label { flex: 0 0 auto; }
 }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.site-search { flex-basis: 100%; }
+.site-search input, .registry-filter input { max-width: 420px; }
+.registry-filter { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+.registry-filter label { font-size: 14px; color: var(--muted); }
+.registry-filter input { flex: 1 1 220px; }
+[hidden] { display: none !important; }
+.add-tool { display: grid; gap: 8px; margin: 8px 0; }
+.add-tool label { display: grid; gap: 2px; font-size: 13px; color: var(--muted); }
+details summary { cursor: pointer; color: var(--accent); }
