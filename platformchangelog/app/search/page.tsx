@@ -1,4 +1,7 @@
 import { headers } from "next/headers";
+import Link from "next/link";
+import { Pane } from "@/components/shell/Pane";
+import { SIGIL, TOKEN } from "@/lib/release-view";
 import { isBot, logEvent, normalizeQuery } from "@/lib/analytics";
 import { searchSite } from "@/lib/queries";
 
@@ -6,71 +9,53 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Search", robots: { index: false } };
 
 type SP = Promise<{ q?: string | string[] }>;
+const fmt = (d: Date) => new Date(d).toISOString().slice(0, 10);
+const anchor = (v: string | null) => (v ? `#v${v.replace(/^v/i, "")}` : "");
 
+// The full results page: where enter lands when nothing in the launcher is selected,
+// and the no-JavaScript path. Logged server-side so the tool count is exact.
 export default async function Search({ searchParams }: { searchParams: SP }) {
   const raw = (await searchParams).q;
   const q = (Array.isArray(raw) ? raw[0] : raw ?? "").slice(0, 200);
-  const { tools, releases, entries } = await searchSite(q);
-
-  // Logged server-side so the result count is exact. resultCount is the number of
-  // matching tools: a search that finds no tool is the "people want this" signal.
+  const { tools, releases, changes, entries } = await searchSite(q);
   if (q.trim().length >= 2 && !isBot((await headers()).get("user-agent"))) {
     await logEvent({ type: "search", path: "/search", query: normalizeQuery(q), resultCount: tools.length });
   }
+  const total = tools.length + releases.length + changes.length + entries.length;
 
-  const fmt = (d: Date) => d.toISOString().slice(0, 10);
   return (
-    <>
-      <h1 style={{ fontSize: 22 }}>Search</h1>
-      <form action="/search" role="search" className="registry-filter">
-        <label htmlFor="search-page-q" className="sr-only">Search</label>
-        <input id="search-page-q" name="q" type="search" defaultValue={q} placeholder="Search tools and releases" />
-      </form>
-      {q.trim().length < 2 ? (
-        <p>Type at least two characters.</p>
-      ) : (
-        <>
-          <h2 style={{ fontSize: 18 }}>Tools ({tools.length})</h2>
-          {tools.length === 0 ? (
-            <p>
-              No tracked tool matches &quot;{q}&quot;. We log searches like this to decide what to cover next.
-            </p>
-          ) : (
-            <ul>
-              {tools.map((t) => (
-                <li key={t.slug}>
-                  <a href={`/tools/${t.slug}`}>{t.name}</a>
-                  {t.current && <span className="meta"> {t.current.version}</span>} <span style={{ color: "var(--muted)" }}>{t.description}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-          {releases.length > 0 && (
-            <>
-              <h2 style={{ fontSize: 18 }}>Releases ({releases.length})</h2>
-              <ul>
-                {releases.map((r) => (
-                  <li key={r.item.id}>
-                    <a href={`/tools/${r.slug}`}>{r.item.title}</a> <span className="meta">{fmt(r.item.publishedAt)}</span>
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-          {entries.length > 0 && (
-            <>
-              <h2 style={{ fontSize: 18 }}>Entries ({entries.length})</h2>
-              <ul>
-                {entries.map((e) => (
-                  <li key={e.item.id}>
-                    <a href={e.item.url} rel="noopener nofollow">{e.item.title}</a> <span className="meta">{fmt(e.item.publishedAt)}</span>
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-        </>
-      )}
-    </>
+    <div className="ws ws-single">
+      <Pane title="search" count={q.trim().length >= 2 ? `${total} results for "${q}"` : undefined}>
+        <form action="/search" className="filter">
+          <label className="srlabel" htmlFor="search-page-q">Search</label>
+          <input id="search-page-q" name="q" type="search" defaultValue={q} placeholder="search tools, versions, changes" />
+        </form>
+        {q.trim().length < 2 && <div className="rempty">Type at least two characters.</div>}
+        {q.trim().length >= 2 && (
+          <>
+            <div className="rgroup">tools {tools.length}</div>
+            {tools.length === 0 && <div className="rempty">No tracked tool matches &quot;{q}&quot;. We log searches like this to decide what to cover next.</div>}
+            {tools.map((t) => (
+              <Link key={t.slug} href={`/tools/${t.slug}`} className="rrow"><span className="rk">tool</span><span className="rt">{t.name} <span className="rm">{t.current?.version}</span><br /><span className="rm">{t.description}</span></span></Link>
+            ))}
+            {releases.length > 0 && <div className="rgroup">releases {releases.length}</div>}
+            {releases.map((r) => (
+              <Link key={r.item.id} href={`/tools/${r.slug}${anchor(r.item.version)}`} className="rrow"><span className="rk">release</span><span className="rt">{r.name} {r.item.version}<br /><span className="rm">{fmt(r.item.publishedAt)}</span></span></Link>
+            ))}
+            {changes.length > 0 && <div className="rgroup">change lines {changes.length}</div>}
+            {changes.map((c, i) => (
+              <Link key={i} href={`/tools/${c.slug}${anchor(c.version)}`} className="rrow">
+                <span className="rk">change</span>
+                <span className="rt"><span className="sg" style={{ color: TOKEN[c.type] ? `var(--${TOKEN[c.type]})` : "var(--mute)" }}>{c.breaking ? "!" : SIGIL[c.type]}</span>{c.text}<br /><span className="rm">{c.name} {c.version} &middot; {c.type}</span></span>
+              </Link>
+            ))}
+            {entries.length > 0 && <div className="rgroup">entries {entries.length}</div>}
+            {entries.map((e) => (
+              <a key={e.item.id} href={e.item.url} target="_blank" rel="noopener nofollow" className="rrow"><span className="rk">entry</span><span className="rt">{e.item.title}<br /><span className="rm">{fmt(e.item.publishedAt)}</span></span></a>
+            ))}
+          </>
+        )}
+      </Pane>
+    </div>
   );
 }

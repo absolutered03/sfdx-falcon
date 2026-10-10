@@ -1,5 +1,7 @@
 # Platform Changelog: design note
 
+> **Adopted 2026-10-10.** Ported into the app: `app/globals.css` (tokens, palettes, panes), `src/components/shell/` (top bar, status line), `src/components/ToolList.tsx`, `src/components/ChangeList.tsx`. Typed change lines now come from `src/ingest/changes.ts` (code, not the summarizer), so the hand-written examples below are superseded. Workspaces are real routes: `/`, `/tools`, `/tools/[slug]`, `/about`.
+
 Prototype: `index.html` in this folder (self-contained, 204 KB, built from `registry-data.json`).
 
 ## Concept

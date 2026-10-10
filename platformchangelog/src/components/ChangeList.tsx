@@ -1,69 +1,77 @@
 import { CHANGE_TYPES, countChanges, type ChangeLine, type ChangeType } from "@/ingest/changes";
+import { SIGIL, TOKEN, releaseFlags, statSegments } from "@/lib/release-view";
 
-// The diff-style change list from the design prototype: a gutter sigil per type, row
-// tint for added, removed and security. Lines come straight from the source's release
-// notes, typed by code (src/ingest/changes.ts); there is no generated text here.
+// The change list from the design prototype, typeset like a diff: column 1 is the
+// breaking flag, column 2 the type sigil, then the line and its type as a label, so
+// color is never the only signal. Lines come straight from the source's release notes,
+// typed by code (src/ingest/changes.ts); there is no generated text here.
 
-const SIGIL: Record<ChangeType, string> = {
-  added: "+", removed: "-", deprecated: "-", changed: "~", fixed: "*", security: "!", other: "·", maintenance: "·",
-};
-const ORDER: ChangeType[] = ["security", "removed", "deprecated", "added", "changed", "fixed", "other"];
-const VISIBLE = 10;
+const ORDER: ChangeType[] = ["security", "removed", "deprecated", "changed", "added", "fixed", "other"];
+const VISIBLE = 12;
 
-function Rows({ lines }: { lines: ChangeLine[] }) {
+export function DiffList({ lines }: { lines: ChangeLine[] }) {
   return (
-    <ul className="chg">
-      {lines.map((l, i) => (
-        <li key={i} className={`chg-${l.type}`}>
-          <span className="sig" aria-label={l.type}>{SIGIL[l.type]}</span>
-          <span>
-            {l.breaking && <span className="brk">breaking</span>}
-            {l.type === "deprecated" && <span className="dep">deprecated</span>}
-            {l.text}
-          </span>
+    <ul className="diff">
+      {lines.map((c, i) => (
+        <li key={i} className={`ln t-${c.type}${c.breaking ? " brk" : ""}`}>
+          <span className="g1" aria-label={c.breaking ? "breaking" : undefined}>{c.breaking ? "!" : ""}</span>
+          <span className="g2" aria-hidden="true">{SIGIL[c.type]}</span>
+          <span className="tx">{c.text}</span>
+          <span className="ty">{c.type}{c.breaking ? " / breaking" : ""}</span>
         </li>
       ))}
     </ul>
   );
 }
 
-/** Counts in Keep a Changelog order, e.g. "238 changes  +17 added  *53 fixed  !7 security  47 maintenance". */
-export function DiffStat({ lines }: { lines: ChangeLine[] }) {
-  const { total, counts, breaking } = countChanges(lines);
+/** "++~**!": the shape of a release at a glance. */
+export function StatBar({ lines }: { lines: ChangeLine[] | null | undefined }) {
+  const segs = statSegments(lines);
+  if (!segs.length) return null;
   return (
-    <div className="diffstat">
-      <span>{total} {total === 1 ? "change" : "changes"}</span>
-      {breaking > 0 && <span className="brk">{breaking} breaking</span>}
-      {CHANGE_TYPES.filter((t) => counts[t] > 0).map((t) => (
-        <span key={t} className={`ds-${t}`}>{t === "maintenance" || t === "other" ? "" : SIGIL[t]}{counts[t]} {t}</span>
-      ))}
-    </div>
+    <span className="stat" title={segs.map((s) => `${s.n} ${s.type}`).join(", ")}>
+      {segs.map((s) => <span key={s.type} style={{ color: `var(--${TOKEN[s.type]})` }}>{s.glyphs}</span>)}
+    </span>
   );
 }
 
-export function ChangeList({ lines, sourceUrl }: { lines: ChangeLine[]; sourceUrl: string }) {
+export function Flags({ lines }: { lines: ChangeLine[] | null | undefined }) {
+  const f = releaseFlags(lines);
+  return (
+    <>
+      {f.breaking && <span className="fl brk">breaking</span>}
+      {f.security && <span className="fl sec">security</span>}
+    </>
+  );
+}
+
+export function ChangeList({ lines }: { lines: ChangeLine[] }) {
   const main = [
     ...lines.filter((l) => l.breaking),
     ...ORDER.flatMap((t) => lines.filter((l) => l.type === t && !l.breaking)),
   ];
   const maintenance = lines.filter((l) => l.type === "maintenance" && !l.breaking);
+  const { total, counts } = countChanges(lines);
   return (
-    <div className="changes">
-      <DiffStat lines={lines} />
-      <Rows lines={main.slice(0, VISIBLE)} />
+    <>
+      {main.length > 0 && <DiffList lines={main.slice(0, VISIBLE)} />}
       {main.length > VISIBLE && (
-        <details>
-          <summary>{main.length - VISIBLE} more</summary>
-          <Rows lines={main.slice(VISIBLE)} />
+        <details className="more">
+          <summary>{main.length - VISIBLE} more lines</summary>
+          <DiffList lines={main.slice(VISIBLE)} />
         </details>
       )}
       {maintenance.length > 0 && (
-        <details>
-          <summary>{maintenance.length} maintenance (dependency bumps, CI, tests, docs)</summary>
-          <Rows lines={maintenance} />
+        <details className="more">
+          <summary>{maintenance.length} maintenance lines (dependency bumps, CI, tests, docs)</summary>
+          <DiffList lines={maintenance} />
         </details>
       )}
-      <a className="chg-src" href={sourceUrl} rel="noopener nofollow">Full release notes</a>
-    </div>
+      <div className="rf">
+        <span>{total} {total === 1 ? "line" : "lines"}</span>
+        {CHANGE_TYPES.filter((t) => counts[t]).map((t) => <span key={t}>{counts[t]} {t}</span>)}
+        <span>typed from the source notes</span>
+      </div>
+    </>
   );
 }

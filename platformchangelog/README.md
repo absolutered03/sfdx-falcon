@@ -46,7 +46,10 @@ npm test                        # unit tests: change parser, publish checks
 ## Layout
 
 ```
-app/                    pages: feed, /tools, /tools/[slug], /search, /about, /admin (+ server actions)
+app/                    pages in the tiling shell (design/prototype-v1, ported 2026-10-10): feed /, registry /tools and
+                        /tools/[slug], methodology /about, /search, /admin (+ server actions)
+src/components/shell/   top bar (workspaces, launcher search, palettes), status line, pane
+app/api/search          launcher search: tools, releases, change lines
 app/admin/insights      search, filter, outbound and time-on-page reports
 app/admin/tools         suggestions from searches, track / untrack, add a tool
 app/api/events          cookieless analytics beacon

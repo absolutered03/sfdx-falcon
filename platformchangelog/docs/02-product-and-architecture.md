@@ -95,9 +95,9 @@ What each guard is for:
 
 | Route | What it shows | Notes |
 |---|---|---|
-| `/` | Feed of published items, newest first; category chips; Major only, Releases, Case studies, Postmortems toggles | One sponsored slot after the fifth item, labelled, only when a placement is active |
-| `/tools` | Registry grouped by category, with each tool's **current version** and its date | A tool is listed only once it has something to show: a known release, an approved entry, or practical notes. Tracked-but-empty tools stay unlisted and their pages return 404 |
-| `/tools/[slug]` | Current version in the header, description, practical notes, release history (summarized and logged), alternatives with one-line notes, case notes and incidents, other coverage | The SEO page. Sponsor sidebar honours conflicts |
+| `/` | Workspace 1, feed: releases (diffstat glyphs, breaking and security flags, kind from the previous version) merged with published entries, grouped by day. Patches hidden unless security, breaking or published (`?show=all` includes them). Right column: status counts, change-type legend, filters | One sponsored slot after the fifth item, labelled, only when a placement is active |
+| `/tools` | Workspace 2, registry: tools pane (filter, groups, j/k) and an overview table with each tool's **current version** and its date | A tool is listed only once it has something to show: a known release, an approved entry, or practical notes. Tracked-but-empty tools stay unlisted and their pages return 404 |
+| `/tools/[slug]` | Same layout: tool header (current version, practical notes, release lines seen), alternatives and case notes, and releases as diff-style typed change lists (`#v1.19.0` anchors) | The SEO page. Sponsor sidebar honours conflicts |
 | `/about` | Methodology, impact definitions, sponsorship policy, corrections | Public version of [04](04-editorial-rules.md) |
 | `/search?q=` | Global search from the header: matching tools, releases, approved entries | Not indexed. Each human search is logged with the number of tools it found |
 | `/admin` | Audit: entries published in the last 14 days (Edit, Mark Major when the model suggested it, Unpublish), entries held by the checks, the "model said out of scope" list to catch false negatives, manual add form | Basic auth in `proxy.ts`, re-checked inside every server action |

@@ -1,6 +1,7 @@
 import { and, arrayContains, asc, desc, eq, gte, inArray, isNotNull, lte, ne, sql } from "drizzle-orm";
 import { getDb, schema } from "../db/client";
 import { compareVersions } from "../ingest/normalize";
+import { releaseFlags, releaseKinds, type ReleaseKind } from "./release-view";
 import type { Category, Impact, ItemKind } from "./taxonomy";
 
 const { items, sources, entities, itemEntities, entityAlternatives, placements, sponsors } = schema;
@@ -119,19 +120,23 @@ export async function getEntityPage(slug: string) {
     .orderBy(desc(items.publishedAt))
     .limit(200);
 
-  const alternatives = await db
-    .select({ slug: entities.slug, name: entities.name, note: entityAlternatives.note })
+  const altRows = await db
+    .select({ id: entities.id, slug: entities.slug, name: entities.name, note: entityAlternatives.note })
     .from(entityAlternatives)
     .innerJoin(entities, eq(entityAlternatives.alternativeId, entities.id))
     .where(and(eq(entityAlternatives.entityId, entity.id), isVisible));
 
-  const current = (await getCurrentVersions([entity.id])).get(entity.id) ?? null;
+  const versions = await getCurrentVersions([entity.id, ...altRows.map((a) => a.id)]);
+  const current = versions.get(entity.id) ?? null;
+  const alternatives = altRows.map((a) => ({ slug: a.slug, name: a.name, note: a.note, current: versions.get(a.id) ?? null }));
+  const kinds = releaseKinds(linked.filter((r) => r.item.kind === "release").map((r) => ({ id: r.item.id, group: entity.id, version: r.item.version })));
 
   return {
     entity,
     current,
     // Newest first; within one day, highest version first (projects patch several
     // lines on the same day, and the current line should lead).
+    kinds,
     releases: linked
       .filter((r) => r.item.kind === "release")
       .sort((a, b) =>
@@ -200,35 +205,165 @@ const VERSIONISH = /^v?\d+(\.\d+)*$/i;
 
 /**
  * Search visible tools (every word that is not a version number must appear in the
- * name, slug, vendor or description), plus releases and approved entries whose title
- * or summary contains the phrase. Small registry, so tools are matched in memory.
+ * name, slug, vendor or description), releases (title contains the phrase, or the
+ * version matches and the other words name the tool: "kyverno 1.19"), change lines,
+ * and approved entries. Small registry, so tools are matched in memory.
  */
 export async function searchSite(rawQuery: string) {
   const q = rawQuery.trim().toLowerCase();
-  if (q.length < 2) return { tools: [], releases: [], entries: [] };
-  const words = q.split(/\s+/).filter((w) => w.length >= 2 && !VERSIONISH.test(w));
+  const empty = { tools: [], releases: [], changes: [], entries: [] };
+  if (q.length < 2) return empty;
+  const all = q.split(/\s+/).filter(Boolean);
+  const words = all.filter((w) => w.length >= 2 && !VERSIONISH.test(w));
+  const versions = all.filter((w) => VERSIONISH.test(w)).map((w) => w.replace(/^v/i, ""));
 
-  const all = await getEntityList();
-  const tools = all.filter((e) => {
+  const list = await getEntityList();
+  const tools = list.filter((e) => {
     const hay = `${e.name} ${e.slug} ${e.vendor ?? ""} ${e.description}`.toLowerCase();
     return words.length ? words.every((w) => hay.includes(w)) : false;
   });
 
   const db = getDb();
-  const like = `%${q.replace(/[%_]/g, (m) => "\\" + m)}%`;
+  const esc = (x: string) => x.replace(/[%_\\]/g, (m) => "\\" + m);
+  const like = `%${esc(q)}%`;
+  const releaseMatch = versions.length
+    ? and(
+        sql`${items.version} ilike ${`%${esc(versions[0])}%`}`,
+        ...words.map((w) => sql`(${entities.name} ilike ${`%${esc(w)}%`} or ${entities.slug} ilike ${`%${esc(w)}%`})`),
+      )
+    : sql`${items.title} ilike ${like}`;
   const releases = await db
     .select({ item: items, slug: entities.slug, name: entities.name })
     .from(items)
     .innerJoin(itemEntities, eq(itemEntities.itemId, items.id))
     .innerJoin(entities, eq(itemEntities.entityId, entities.id))
-    .where(and(eq(items.kind, "release"), ne(items.status, "out_of_scope"), eq(entities.tracked, true), sql`${items.title} ilike ${like}`))
+    .where(and(eq(items.kind, "release"), ne(items.status, "out_of_scope"), isVisible, releaseMatch))
     .orderBy(desc(items.publishedAt))
     .limit(20);
+  const changes = q.length >= 3
+    ? ((await db.execute(sql`
+        select e.slug, e.name, i.version, i.published_at as "publishedAt", c->>'type' as type, coalesce((c->>'breaking')::boolean, false) as breaking, c->>'text' as text
+        from ${items} i
+        join ${itemEntities} ie on ie.item_id = i.id
+        join ${entities} e on e.id = ie.entity_id
+        cross join lateral jsonb_array_elements(coalesce(i.changes, '[]'::jsonb)) c
+        where i.kind = 'release' and i.status <> 'out_of_scope' and e.tracked and not e.archived
+          and c->>'type' <> 'maintenance' and c->>'text' ilike ${like}
+        order by i.published_at desc limit 12`)) as unknown as { slug: string; name: string; version: string; publishedAt: Date; type: string; breaking: boolean; text: string }[])
+    : [];
   const entries = await db
     .select({ item: items })
     .from(items)
     .where(and(eq(items.status, "approved"), sql`(${items.title} ilike ${like} or ${items.summary} ilike ${like})`))
     .orderBy(desc(items.publishedAt))
     .limit(20);
-  return { tools, releases, entries };
+  return { tools, releases, changes: [...changes], entries };
+}
+
+// ---------------------------------------------------------------------------
+// Feed stream (workspace 1): published entries and releases, newest first
+// ---------------------------------------------------------------------------
+
+export interface StreamFilters extends FeedFilters {
+  all?: boolean; // include routine patch releases
+}
+
+export type StreamRow =
+  | { type: "release"; item: typeof items.$inferSelect; slug: string; name: string; kind: ReleaseKind }
+  | { type: "entry"; item: typeof items.$inferSelect; sourceName: string | null; entities: { slug: string; name: string }[] };
+
+/**
+ * Releases of public tools (every state but out of scope; routine patches only with
+ * all=true, unless they carry a security or breaking line or a published entry) merged
+ * with published entries that are not releases. A release's change list is source
+ * data, so it shows before or without a summary.
+ */
+export async function getStream(f: StreamFilters, limit = 250): Promise<StreamRow[]> {
+  const db = getDb();
+  const out: StreamRow[] = [];
+
+  if (!f.kind || f.kind === "release") {
+    const rel = await db
+      .select({ item: items, slug: entities.slug, name: entities.name, entityId: entities.id, sourceEntity: sources.entitySlug })
+      .from(items)
+      .innerJoin(itemEntities, eq(itemEntities.itemId, items.id))
+      .innerJoin(entities, eq(itemEntities.entityId, entities.id))
+      .leftJoin(sources, eq(items.sourceId, sources.id))
+      .where(and(
+        eq(items.kind, "release"),
+        inArray(items.status, ["approved", "logged", "pending_llm", "draft"]),
+        eq(entities.archived, false),
+        isVisible,
+        f.category ? arrayContains(items.categories, [f.category]) : undefined,
+        f.impact ? and(eq(items.impact, f.impact), eq(items.status, "approved")) : undefined,
+      ))
+      .orderBy(desc(items.publishedAt))
+      .limit(800);
+    // One row per release, under the tool whose feed it came from.
+    const byItem = new Map<number, (typeof rel)[number]>();
+    for (const r of rel) {
+      const seen = byItem.get(r.item.id);
+      if (!seen || (seen.slug !== seen.sourceEntity && r.slug === r.sourceEntity)) byItem.set(r.item.id, r);
+    }
+    const rows = [...byItem.values()];
+    const entityIds = [...new Set(rows.map((r) => r.entityId))];
+    const all = entityIds.length
+      ? await db
+          .select({ id: items.id, group: itemEntities.entityId, version: items.version })
+          .from(items)
+          .innerJoin(itemEntities, eq(itemEntities.itemId, items.id))
+          .where(and(eq(items.kind, "release"), ne(items.status, "out_of_scope"), inArray(itemEntities.entityId, entityIds)))
+      : [];
+    const kinds = releaseKinds(all);
+    for (const r of rows) {
+      const kind = kinds.get(r.item.id) ?? "patch";
+      const flags = releaseFlags(r.item.changes);
+      if (!f.all && kind === "patch" && r.item.status !== "approved" && !flags.security && !flags.breaking) continue;
+      out.push({ type: "release", item: r.item, slug: r.slug, name: r.name, kind });
+    }
+  }
+
+  if (f.kind !== "release") {
+    const entries = await db
+      .select({ item: items, sourceName: sources.name })
+      .from(items)
+      .leftJoin(sources, eq(items.sourceId, sources.id))
+      .where(and(
+        eq(items.status, "approved"),
+        ne(items.kind, "release"),
+        f.kind ? eq(items.kind, f.kind) : undefined,
+        f.category ? arrayContains(items.categories, [f.category]) : undefined,
+        f.impact ? eq(items.impact, f.impact) : undefined,
+      ))
+      .orderBy(desc(items.publishedAt))
+      .limit(150);
+    for (const e of await attachEntities(entries)) out.push({ type: "entry", item: e.item, sourceName: e.sourceName, entities: e.entities });
+  }
+
+  return out
+    .sort((a, b) =>
+      b.item.publishedAt.toISOString().slice(0, 10).localeCompare(a.item.publishedAt.toISOString().slice(0, 10)) ||
+      compareVersions(b.item.version ?? "0", a.item.version ?? "0") ||
+      b.item.publishedAt.getTime() - a.item.publishedAt.getTime(),
+    )
+    .slice(0, limit);
+}
+
+/** The status pane: what the registry holds right now. */
+export async function getStats() {
+  const db = getDb();
+  const since = new Date(Date.now() - 30 * 86_400_000);
+  const [tools, releases, recent, published, lines] = await Promise.all([
+    db.select({ n: sql<number>`count(*)::int` }).from(entities).where(and(eq(entities.archived, false), isVisible)),
+    db.$count(items, and(eq(items.kind, "release"), ne(items.status, "out_of_scope"))),
+    db.$count(items, and(eq(items.kind, "release"), ne(items.status, "out_of_scope"), gte(items.publishedAt, since))),
+    db.$count(items, eq(items.status, "approved")),
+    db.execute<{ breaking: number; security: number }>(sql`
+      select count(*) filter (where (c->>'breaking')::boolean)::int as breaking,
+             count(*) filter (where c->>'type' = 'security')::int as security
+      from ${items}, jsonb_array_elements(coalesce(${items.changes}, '[]'::jsonb)) c
+      where ${items.kind} = 'release' and ${items.status} <> 'out_of_scope' and ${items.publishedAt} >= ${since.toISOString()}`),
+  ]);
+  const l = (lines as unknown as { rows?: { breaking: number; security: number }[] }).rows?.[0] ?? (lines as unknown as { breaking: number; security: number }[])[0];
+  return { tools: tools[0]?.n ?? 0, releases, recent, published, breaking: l?.breaking ?? 0, security: l?.security ?? 0 };
 }
