@@ -1,0 +1,20 @@
+# Local Postgres for development. `npm run local` starts it for you.
+# Port 5433 on the host so it never collides with a Postgres you already run on 5432.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: pcl
+      POSTGRES_PASSWORD: pcl
+      POSTGRES_DB: platformchangelog
+    ports:
+      - "5433:5432"
+    volumes:
+      - pcl-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pcl -d platformchangelog"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+volumes:
+  pcl-data:

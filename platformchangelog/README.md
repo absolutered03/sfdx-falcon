@@ -28,6 +28,19 @@ A vendor-neutral registry and feed for platform engineering, developer experienc
 
 ## Run it
 
+**On your machine, one command** (Node 20+ and Docker Desktop, or your own Postgres in `.env`):
+
+```bash
+npm run local                     # Postgres in Docker, tables, seed, fetch, full release notes, tests, build, start on :3000
+npm run local -- --skip-fetch     # fast restart with what is already in the database
+npm run local -- --summarize 10   # also have the model write 10 entries (needs ANTHROPIC_API_KEY in .env; they publish locally)
+npm run local -- --dev            # hot reload instead of a production build
+```
+
+The first run writes `.env` with a generated admin password and prints it with the URL. Verified 2026-10-10 on a clean copy (no `node_modules`, no `.env`, empty Docker): all steps green, every page 200, second run reuses the database.
+
+Step by step, if you prefer:
+
 ```bash
 cp .env.example .env            # fill DATABASE_URL, ANTHROPIC_API_KEY, ADMIN_PASSWORD
 npm ci
