@@ -110,7 +110,12 @@ export async function getEntityPage(slug: string) {
     .from(itemEntities)
     .innerJoin(items, eq(itemEntities.itemId, items.id))
     .leftJoin(sources, eq(items.sourceId, sources.id))
-    .where(and(eq(itemEntities.entityId, entity.id), inArray(items.status, ["approved", "logged"])))
+    // Releases waiting on (or held from) a summary still show: their change list is
+    // source data, not generated text. Their summary fields are only rendered once approved.
+    .where(and(
+      eq(itemEntities.entityId, entity.id),
+      sql`(${items.status} in ('approved', 'logged') or (${items.kind} = 'release' and ${items.status} in ('pending_llm', 'draft')))`,
+    ))
     .orderBy(desc(items.publishedAt))
     .limit(200);
 

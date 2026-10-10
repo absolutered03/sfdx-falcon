@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation";
+import { ChangeList, DiffStat } from "@/components/ChangeList";
 import { getEntityPage, getPlacement } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 
 type Params = Promise<{ slug: string }>;
 const fmt = (d: Date) => d.toISOString().slice(0, 10);
+const FULL_RELEASES = 12; // newest releases get the full change list; older ones a one-line diffstat
 
 export async function generateMetadata({ params }: { params: Params }) {
   const data = await getEntityPage((await params).slug);
@@ -45,21 +47,37 @@ export default async function ToolPage({ params }: { params: Params }) {
 
       <section>
         <h2 style={{ fontSize: 18 }}>Release history</h2>
-        {releases.length === 0 ? <p>No releases recorded yet.</p> : (
-          <table>
-            <tbody>
-              {releases.map(({ item }) => (
-                <tr key={item.id}>
-                  <td style={{ width: 100 }}>{fmt(item.publishedAt)}</td>
-                  <td style={{ width: 90 }}><a href={item.url} rel="noopener nofollow">{item.version ?? "release"}</a></td>
-                  <td>
-                    {item.impact === "major" && <span className="tag major">major </span>}
-                    {item.status === "logged" ? <span style={{ color: "var(--muted)" }}>Patch release</span> : item.platformImpact ?? item.summary}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {releases.length === 0 && <p>No releases recorded yet.</p>}
+        {releases.slice(0, FULL_RELEASES).map(({ item }) => (
+          <div key={item.id} className="release" id={item.version ? `v${item.version.replace(/^v/i, "")}` : undefined}>
+            <div className="release-head">
+              <a href={item.url} rel="noopener nofollow" className="ver">{item.version ?? "release"}</a>
+              <span>{fmt(item.publishedAt)}</span>
+              {item.impact === "major" && <span className="tag major">major</span>}
+            </div>
+            {item.status === "approved" && (item.platformImpact ?? item.summary) && <p className="impact">{item.platformImpact ?? item.summary}</p>}
+            {item.changes?.length ? (
+              <ChangeList lines={item.changes} sourceUrl={item.url} />
+            ) : (
+              <p className="meta">{item.status === "logged" ? "No itemized notes; see the release page." : ""}</p>
+            )}
+          </div>
+        ))}
+        {releases.length > FULL_RELEASES && (
+          <details>
+            <summary>{releases.length - FULL_RELEASES} older releases</summary>
+            <table>
+              <tbody>
+                {releases.slice(FULL_RELEASES).map(({ item }) => (
+                  <tr key={item.id} id={item.version ? `v${item.version.replace(/^v/i, "")}` : undefined}>
+                    <td style={{ width: 100 }}>{fmt(item.publishedAt)}</td>
+                    <td style={{ width: 90 }}><a href={item.url} rel="noopener nofollow">{item.version ?? "release"}</a></td>
+                    <td>{item.changes?.length ? <DiffStat lines={item.changes} /> : <span className="meta">No itemized notes</span>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </details>
         )}
       </section>
 

@@ -12,13 +12,16 @@ import {
   timestamp,
   index,
 } from "drizzle-orm/pg-core";
+import type { ChangeLine } from "../ingest/changes";
 import { CATEGORIES, IMPACTS, ITEM_KINDS, ITEM_STATUSES } from "../lib/taxonomy";
 
 export const categoryEnum = pgEnum("category", CATEGORIES);
 export const itemKindEnum = pgEnum("item_kind", ITEM_KINDS);
 export const impactEnum = pgEnum("impact", IMPACTS);
 export const itemStatusEnum = pgEnum("item_status", ITEM_STATUSES);
-export const sourceKindEnum = pgEnum("source_kind", ["rss", "github_releases", "manual"]);
+// changelog_md: a markdown release-notes file with one "## version (date)" section per
+// release (Salesforce CLI publishes this way; its GitHub releases are nightly builds).
+export const sourceKindEnum = pgEnum("source_kind", ["rss", "github_releases", "changelog_md", "manual"]);
 // Tier drives editorial weight: a vendor post needs corroboration before it can be "major".
 export const sourceTierEnum = pgEnum("source_tier", ["primary", "community", "media", "vendor"]);
 export const entityKindEnum = pgEnum("entity_kind", [
@@ -47,7 +50,7 @@ export const sources = pgTable("sources", {
   kind: sourceKindEnum("kind").notNull(),
   tier: sourceTierEnum("tier").notNull(),
   siteUrl: text("site_url"),
-  feedUrl: text("feed_url"), // RSS/Atom; for github_releases this is derived from githubRepo
+  feedUrl: text("feed_url"), // RSS/Atom, or the raw changelog file; for github_releases this is derived from githubRepo
   githubRepo: text("github_repo"), // "backstage/backstage"
   entitySlug: text("entity_slug"), // a release feed belongs to exactly one entity
   defaultCategories: categories("default_categories"),
@@ -151,7 +154,9 @@ export const items = pgTable(
     title: text("title").notNull(),
     publishedAt: timestamp("published_at", { withTimezone: true }).notNull(),
     fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull().defaultNow(),
-    excerpt: text("excerpt").notNull(), // plain text from the feed, the only thing the LLM sees
+    excerpt: text("excerpt").notNull(), // what the LLM sees: plain text, or for releases the condensed typed lines
+    body: text("body"), // releases: the full notes as published (markdown from the GitHub API, or feed text)
+    changes: jsonb("changes").$type<ChangeLine[]>(), // releases: every line of the notes, typed (src/ingest/changes.ts)
     contentHash: text("content_hash").notNull(),
     status: itemStatusEnum("status").notNull().default("pending_llm"),
     kind: itemKindEnum("kind").notNull().default("post"),

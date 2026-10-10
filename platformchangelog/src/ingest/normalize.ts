@@ -8,6 +8,10 @@ export interface RawItem {
   publishedAt: Date;
   excerpt: string;
   contentHash: string;
+  body?: string; // full release notes, when the source gives them (GitHub API, changelog files)
+  prerelease?: boolean; // GitHub's own prerelease flag
+  version?: string; // set by changelog files, where the version is not in a release title
+  lines?: import("./changes").ChangeLine[]; // pre-typed lines (changelog files)
 }
 
 const parser = new XMLParser({
@@ -32,6 +36,12 @@ const text = (v: unknown): string => {
 export function stripHtml(html: string): string {
   return html
     .replace(/<(script|style)[\s\S]*?<\/\1>/gi, " ")
+    // Keep list, heading and code-block structure as markdown markers, so release
+    // notes from a feed still parse into one change per bullet (src/ingest/changes.ts).
+    .replace(/<li[^>]*>/gi, "\n* ")
+    .replace(/<h[1-6][^>]*>/gi, "\n## ")
+    .replace(/<pre[^>]*>/gi, "\n```\n")
+    .replace(/<\/pre>/gi, "\n```\n")
     .replace(/<br\s*\/?>|<\/(p|li|h\d|div)>/gi, "\n")
     .replace(/<[^>]+>/g, " ")
     .replace(/&nbsp;/g, " ")
@@ -61,17 +71,21 @@ export function canonicalUrl(raw: string): string {
 
 export const sha256 = (s: string) => createHash("sha256").update(s).digest("hex");
 
-// Release notes for big projects run to tens of KB. Cap what we store and send to the
-// LLM; the reviewer always has the link. The cap is a cost decision, stated openly.
+// What the LLM sees is capped; a cost decision, stated openly. For releases the excerpt
+// is the condensed typed lines (every non-maintenance line, most important first), so
+// the cap almost never bites; the full notes are kept in items.body.
 export const EXCERPT_LIMIT = 12_000;
+// Full release notes kept for the tool page. Kyverno 1.19.0's 238 lines are ~25 KB.
+export const BODY_LIMIT = 200_000;
 
 function toRaw(url: string, title: string, date: string, bodyHtml: string): RawItem | null {
   if (!url || !title) return null;
   const publishedAt = new Date(date);
   if (Number.isNaN(publishedAt.getTime())) return null;
-  const excerpt = stripHtml(bodyHtml).slice(0, EXCERPT_LIMIT);
+  const full = stripHtml(bodyHtml);
+  const excerpt = full.slice(0, EXCERPT_LIMIT);
   try {
-    return { url: canonicalUrl(url), title: stripHtml(title), publishedAt, excerpt, contentHash: sha256(excerpt) };
+    return { url: canonicalUrl(url), title: stripHtml(title), publishedAt, excerpt, body: full.slice(0, BODY_LIMIT), contentHash: sha256(full) };
   } catch {
     return null; // unparseable URL
   }

@@ -20,5 +20,6 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }} # release notes via the GitHub API; built in, no secret to add
           LLM_MODEL: ${{ vars.LLM_MODEL || 'claude-opus-5-5' }}
           MAX_LLM_CALLS_PER_RUN: ${{ vars.MAX_LLM_CALLS_PER_RUN || '40' }}

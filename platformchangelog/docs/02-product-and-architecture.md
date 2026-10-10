@@ -52,7 +52,7 @@ erDiagram
 | `events` | First-party analytics: searches, registry filters, outbound clicks, page views, visible time | No cookies, no IP, no user agent stored. Session id is random, per tab (`sessionStorage`). Bots dropped at the door. Rows older than 180 days are deleted by the ingest job. |
 | `dismissed_terms` | Search terms an editor marked "not a tool" | Keeps them out of the suggestions list. |
 | `entity_alternatives` | One-line comparisons | Stored in both directions so either page shows it. |
-| `items` | Every fetched URL, in every state | **Release history and case notes are not separate tables**: they are items filtered by `kind` and linked through `item_entities`. One row per canonical URL is the dedupe. `llm_raw` keeps the full model output for audit. |
+| `items` | Every fetched URL, in every state. Releases also keep `body` (the full notes) and `changes` (every line, typed by `src/ingest/changes.ts`) | **Release history and case notes are not separate tables**: they are items filtered by `kind` and linked through `item_entities`. One row per canonical URL is the dedupe. `llm_raw` keeps the full model output for audit. |
 | `sponsors`, `placements` | Future revenue | `conflict_entity_slugs` keeps a sponsor off pages for products it sells or competes with. |
 | `digests`, `digest_items` | What went out each week | Intro is human-only. |
 
@@ -68,7 +68,8 @@ flowchart LR
   D -- seen --> X[skip]
   D -- new --> E{Deterministic triage}
   E -- prerelease, chart tag, off-niche --> O[out_of_scope]
-  E -- routine patch --> L[logged]
+  E -- nightly or GitHub prerelease --> O
+  E -- routine patch, or only dependency, CI, test or docs lines --> L[logged]
   E -- candidate --> P[pending_llm]
   P --> F[LLM: one call, structured output<br/>capped per run]
   F -- in scope --> K{Publish checks<br/>link, length, markup, dashes, hype}
@@ -84,6 +85,8 @@ What each guard is for:
 
 - **Allow-list only.** No URL is fetched unless it is a `sources` row.
 - **Plain text only.** Feed HTML is stripped before storage, so no markup from a source reaches the page; React escapes everything rendered.
+- **Release notes are typed by code, not the model** (2026-10-10). Full notes come from the GitHub API (Atom feed as fallback; `GITHUB_TOKEN` from Actions lifts the rate limit). Every line becomes added, changed, deprecated, removed, fixed, security, maintenance or other, using commit prefixes (`feat:`, `fix(deps):`), section headings and CVE or GHSA ids. The tool page shows the whole list diff-style with exact counts; the model gets every non-maintenance line, most important first, instead of the first 12,000 characters. Found on real data: Kyverno 1.19.0 has about 238 lines, of which the old cap kept 133.
+- **Sources whose GitHub releases are not release notes get a changelog file instead.** Salesforce CLI's GitHub releases are nightly builds saying only "!! Release as nightly !!"; its real notes are weekly sections in `forcedotcom/cli/releasenotes/README.md` (source kind `changelog_md`, release candidates skipped until they ship).
 - **Deterministic triage before the model.** Found against real feeds on 2026-10-06: Backstage ships weekly `-next.N` pre-releases, Argo CD cuts the same patch on three branches at once, Crossplane and Kyverno publish chart and API-module tags. All filtered without a model. Patch releases that mention a CVE or security still go to the model.
 - **The model sees source text as declared, untrusted data.** It cannot choose a URL, can only link entities from the list it is given (enforced again in code), and it can never tag an entry Major. Links or markup in its output hold the item. The worst a poisoned feed item can do is publish a wrong notable entry, which the audit removes.
 - **Failure is held, not published and not binned.** A refusal or schema failure becomes a held draft flagged `llm_failed` with no generated text; a failed publish check is flagged `held_by_checks` with the reason in `status_reason`.

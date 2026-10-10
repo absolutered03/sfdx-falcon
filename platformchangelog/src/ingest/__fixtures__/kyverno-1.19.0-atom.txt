@@ -1,0 +1,134 @@
+What's Changed
+ fix: limit intermediate certs to mitigate CVE-2026-32280 by @atharrva01 in #15858 
+ ci: fix cosign releaser step by @lucchmielowski in #15932 
+ chore(deps): bump github.com/rs/zerolog from 1.35.0 to 1.35.1 by @dependabot [bot] in #15917 
+ Feat/cli apply cross resource by @SargamPuram in #15846 
+ automate stale PR updates by @JimBugwadia in #15942 
+ fix: revert 15880 - support httpAllowList and httpBlockList for cluster-scoped policies by @JimBugwadia in #15960 
+ fix permissions for pr-branch-updater by @JimBugwadia in #15967 
+ use existing PR updater token by @JimBugwadia in #15974 
+ chore(deps): bump goreleaser/goreleaser-action from 7.1.0 to 7.2.1 by @dependabot [bot] in #15976 
+ chore(deps): bump aquasecurity/trivy-action from 0.35.0 to 0.36.0 by @dependabot [bot] in #15943 
+ update blocklist to allow in-cluster HTTP calls by @JimBugwadia in #15973 
+ chore(deps): bump github.com/Azure/go-ntlmssp from 0.0.0-20221128193559-754e69321358 to 0.1.1 by @dependabot [bot] in #15954 
+ chore(deps): bump github.com/aptible/supercronic from 0.2.43 to 0.2.45 by @dependabot [bot] in #15961 
+ ci: Fix http conformance test blocklist by @lucchmielowski in #15986 
+ Add mpol handler gap tests (namespaced, exception, failurePolicy, dry-run, backgroundSA) by @rx18-eng in #15733 
+ chore: update available versions in issues by @lucchmielowski in #15996 
+ test: add dpol controller integration tests by @rx18-eng in #15859 
+ test: add gpol exception and CEL edge case integration tests by @rx18-eng in #15787 
+ refactor: drop reliance on EnvSet in favor of in-library versioning by @aerosouund in #16014 
+ fix(jmespath): prevent panic in label_match on nested structures by @pulkitvats2007-crypto in #15827 
+ fix: retry on conflict when updating policy status by @williamclot in #15754 
+ fix: restart dynamic watchers in background reporting on 410 by @aerosouund in #16028 
+ chore: add framework tests github workflow by @aerosouund in #15743 
+ fix: support cluster-scoped resource generation in GeneratingPolicy by @realshuting in #16018 
+ fix: pass AdmissionRequest to updaterequests for mutate existing policy by @realshuting in #16050 
+ fix(cli): fix resource lookup for MutatingPolicy, GeneratingPolicy and DeletingPolicy in test command by @SargamPuram in #15784 
+ ci: skip framework tests on docs-only and helm-only PRs by @rx18-eng in #16088 
+ fix(cli): add generatedResources field for GeneratingPolicy multi-resource tests by @SargamPuram in #16034 
+ Fix/cli multiple json payloads by @SargamPuram in #15584 
+ feat(cli): add offline mock support for http mock request/response for GET method and global context entries by @SargamPuram in #15948 
+ chore: add new gpol samples by @realshuting in #16097 
+ fix: validate name field in globalReference context entry by @atharrva01 in #16003 
+ fix(gctx): correctly track per-loader load state to avoid skipping LoadData by @liuxu623 in #16099 
+ fix: skip report creation for subresources with empty name/UID by @realshuting in #16114 
+ feat: add updaterequest total gauge metric by @realshuting in #16115 
+ feat(helm): support extraArgs in CRDs migration job by @Suhani95 in #16132 
+ feat: add non-goals by @realshuting in #16144 
+ chore: point to security assessments by @realshuting in #16145 
+ chore: update dependency policy by @realshuting in #16150 
+ fix(engine/vpol): include CEL validation expression index in policy report properties by @Rohanraj123 in #15916 
+ feat(helm): add optional PrometheusRule template by @realshuting in #16155 
+ chore: clarify performance baselines by @realshuting in #16154 
+ feat: update api docs by @realshuting in #16143 
+ feat: add NOTICE and embed attribution in container images by @realshuting in #16151 
+ feat: add opertional runbook by @realshuting in #16149 
+ feat(cli): add offline mock support for k8sresource-backed global context entries via inline and external resource manifests by @SargamPuram in #16123 
+ fix(helm): reportsServer.enabled=true fails with "Image tags must be strings" by @yashrajshuklaaa in #16167 
+ fix(Makefile): wire readiness-checker into local kind dev workflow by @mastersans in #16181 
+ test: add NewTestEnvWithOptions for opt-in policy type wiring by @rx18-eng in #16005 
+ fix(namespacedmutatingpolicy): fix crash loop, missing status, and recorder key by @sandert-k8s in #16055 
+ docs(perf-testing): add v1.18.1 CEL admission latency benchmarks and reorganize perf-testing layout by @realshuting in #16197 
+ test: add additional dpol controller integration tests by @rx18-eng in #15966 
+ ci: cache envtest binaries between framework test runs by @rx18-eng in #16110 
+ fix(dpol): apply namespaceSelector against Namespace resource own labels by @realshuting in #16200 
+ fix: do not abort required validation on non-matching images by @lucchmielowski in #16208 
+ fix(cli): allow multiple CRDs in to be in the --crd-path file by @the-technat in #16161 
+ test(integration): migrate gpol sync-clone scenarios from chainsaw by @rx18-eng in #16206 
+ fix: add the readiness checker to the ci image archive by @aerosouund in #16220 
+ fix: add access to clusterroles and bindings in the standard kyverno config by @aerosouund in #16219 
+ feat: Enable Cosign verbosity debugging by @naseyro in #16207 
+ chore: regenerate CRDs and docs after GHSA-79gf-7frw-68m9 API bump by @realshuting in #16241 
+ ci: bump codecov-action to v6.0.2 to fix uploader GPG key verification by @rx18-eng in #16273 
+ fix: support cel exception in cli apply 'exceptions-within-resources' by @bakito in #16178 
+ docs: fix duplicated word in cleanuppolicy validateAuth comment by @s3onghyun in #16279 
+ return correct results for NotEquals type mismatch cases by @7se7en72025 in #16276 
+ feat(cli): support multiple CRD paths and hook CRD processor into test command by @asiyani in #15824 
+ fix: wire gpolEngine and gpolProvider into policyController by @yashrajshuklaaa in #16171 
+ fix: nil pointer panic in getGpolTriggers on ListResource error by @senutpal in #16245 
+ chore(deps): bump github/codeql-action from 4.35.2 to 4.35.4 by @dependabot [bot] in #16045 
+ Fix UR regression by @avoidik in #16280 
+ Fix context and SyncWatchers race conditions in GeneratingPolicy by @Aneesh-Hegde in #16041 
+ feat(pss-helm): add image to allowed volumetypes by @yehlo in #15906 
+ fix(generate): batch UpdateRequests to avoid etcd size limit by @vmsilvamolina in #15872 
+ fix(policy): apply orphanDownstreamOnPolicyDelete to clone cleanup by @realshuting in #16329 
+ fix(background): remove dead watcher entry on goroutine exit by @Ebraam-Ashraf in #16130 
+ fix(deps): bump golang.org/x/crypto to v0.53.0 and x/net to v0.56.0 to resolve security CVEs by @realshuting in #16340 
+ fix(generate): support NamespacedGeneratingPolicy end-to-end by @realshuting in #16338 
+ feat: honor expired CEL PolicyExceptions by @realshuting in #16299 
+ fix(background): scan NamespacedImageValidatingPolicy resources too by @Proximyst in #16301 
+ fix: validate stdin across apply paths by @karthikmanam in #16347 
+ feat(cli): add CEL http.Post mocking test fixtures, duplicate validation check, and integration tests by @SargamPuram in #16297 
+ fix(helm): serialize gh-pages publishes to prevent missing kyverno-policies releases by @ANAMASGARD in #16291 
+ chore(deps): bump actions/cache from 5.0.3 to 6.1.0 by @dependabot [bot] in #16371 
+ fix: upgrade go toolchain to 1.26.3 to resolve CVE-2026-39836 by @aditip149209 in #16361 
+ fix(deps): upgrade ristretto to v2 by @chimanjain in #16360 
+ fix: unblock ko image publish by replacing escaping kodata symlinks by @realshuting in #16381 
+ chore(workflow): dynamically discover active branches for Trivy issue sync by @realshuting in #16377 
+ fix CEL autogen namespace replacement by @dag-andersen in #16039 
+ fix(gpol): support mixed-type aggregate literals in CEL variables by @realshuting in #16339 
+ docs: fix README workflow badge and AI policy link by @ObaidAbdullah16 in #16162 
+ fix(deps): bump rekor and in-toto-golang for codeql alerts by @realshuting in #16394 
+ test: fix webhook registration typo by @ObaidAbdullah16 in #16164 
+ feat: support skipBackgroundRequests for CEL mpol/gpol by @realshuting in #16369 
+ test(chainsaw): fix NIVP background + clone-multiple-targets setup by @realshuting in #16399 
+ chore: update pond dependency to v2 by @chimanjain in #16379 
+ chore(deps): bump goreleaser/goreleaser-action from 7.2.1 to 7.2.3 by @dependabot [bot] in #16402 
+ Update backoff v7 by @khiemdoan in #16405 
+ Don't initialize rekor client for key or certificate based scenarios by @aerosouund in #16415 
+ chore(deps): bump fluxcd/flux2 from 2.8.5 to 2.8.6 by @dependabot [bot] in #15939 
+ test(chainsaw): fix clone-multiple-targets dynamic lookup fixture by @realshuting in #16414 
+ chore(deps): bump github.com/onsi/gomega from 1.39.1 to 1.40.0 by @dependabot [bot] in #15991 
+ chore(deps): bump golang.org/x/net from 0.48.0 to 0.55.0 in /hack/controller-gen by @dependabot [bot] in #16420 
+ test(integration): add YAML fixture loaders for the framework by @rx18-eng in #16229 
+ fix: preserve cluster-scoped generated resources by @Suhani95 in #16362 
+ fix(deps): patch ORAS and sigstore CodeQL vulnerabilities by @realshuting in #16426 
+ feat(gpol): support useServerSideApply for GeneratingPolicy by @realshuting in #16403 
+ fix(api): use allPath instead of anyPath in m.All validation loop by @Utkal059 in #16296 
+ fix: prevent ivpol webhook reconciliation loop on platforms that normalize namespaceSelector Fixes #16256 by @pyd-07 in #16258 
+ fix(ci): use server-side apply for conformance CRD refresh by @realshuting in #16429 
+ fix: add sorting for ivpol targets by @1vanden in #16252 
+ fix(webhook): sort fine-grained policies to prevent continuous shuffle to the WebhookConfiguration's order by @InsomniaCoder in #15865 
+ fix(ci): force conflicts when server-side applying conformance CRDs by @realshuting in #16432 
+ fix(background-controller): wire MutatingPolicy and NamespacedMutatingPolicy into background scan by @sandert-k8s in #16255 
+ fix(reports): correct label prefix for mpol/dpol policies by @atharrva01 in #16452 
+ fix: ImageValidatingPolicy fails in air-gapped environments with insecureIgnoreTlog by @hugolevino in #16298 
+ fix(cli): surface GeneratingPolicy CEL errors when metadata.uid is missing by @ANAMASGARD in #16287 
+ chore(deps): bump github/codeql-action/upload-sarif from 4.35.4 to 4.36.3 by @dependabot [bot] in #16442 
+ chore(deps): bump fossas/fossa-action from 1.9.0 to 2.0.0 by @dependabot [bot] in #16441 
+ fix: resolve context leak in dynamic resource watcher by @AftAb-25 in #16087 
+ feat(gpol): add auditAnnotations support to GeneratingPolicy by @realshuting in #16505 
+ fix: add policies.kyverno.io resources to aggregate policy roles by @volantebjb in #16239 
+ fix: address open CodeQL security vulnerabilities by @realshuting in #16528 
+ chore(deps): bump github/codeql-action/upload-sarif from 4.36.3 to 4.37.0 by @dependabot [bot] in #16516 
+ chore(deps): bump actions/labeler from 6.0.1 to 6.2.0 by @dependabot [bot] in #16515 
+ Migrate yaml package gopkg.in/yaml.v2 to go.yaml.in/yaml/v3 by @chimanjain in #16511 
+ fix: skip reports RBAC check when background scanning is disabled by @p-fruck in #16490 
+ fix(readiness-checker): guard nil EndpointConditions.Ready to prevent panic by @rootp1 in #16544 
+ chore(deps): bump cbrgm/cleanup-stale-branches-action from 1.2.8 to 1.2.9 by @dependabot [bot] in #16010 
+ chore(deps): bump the otel group across 1 directory with 4 updates by @dependabot [bot] in #16539 
+ chore(deps): bump Homebrew/actions/limit-pull-requests from 9ceb7934560eb61d131dde205a6c2d77b2e1529d to 18fcb8e3e06b4247c676c506750dc95ea7226479 by @dependabot [bot] in #16562 
+ Test(conformance): pin Sigstore scaffolding version and remove redundant UR cleanup by @Suhani95 in #16572 
+ fix: resolve wildcard apiVersions GVR to GVK mapping failure in getGpolTriggers by @Karthikk-18 in #16525 
+ chore(deps): bump fluxcd/flux2/action from 2.8.6 to 2.9.2 by @dependabot [bot] in #

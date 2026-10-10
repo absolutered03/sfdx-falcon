@@ -39,6 +39,8 @@ npm run dev                     # http://localhost:3000, audit at /admin
 npm run digest > digest.md      # weekly outline
 npm run backfill                # one-time launch backfill: dry run lists one draft per tool; add --run to draft
 npm run compare                 # opus 5.5 vs haiku 4.5 on 12 real items, read-only -> reports/
+npm run rebuild:releases        # re-type every stored release; add -- --refetch to pull full notes from the GitHub API first
+npm test                        # unit tests: change parser, publish checks
 ```
 
 ## Layout
@@ -57,6 +59,8 @@ src/ingest/normalize.ts feed parsing, URL canonicalization, release triage
 src/ingest/prefilter.ts keyword gate for broad feeds
 src/ingest/summarize.ts the one LLM call
 src/ingest/publish-checks.ts deterministic gate before anything goes live
+src/ingest/changes.ts   release notes -> typed change lines (added, fixed, security...), no model
+src/ingest/releases.ts  GitHub API release fetch (Atom fallback), changelog files, nightly and maintenance-only checks
 scripts/                ingest, seed, digest
 data/                   hardcoded sources and registry
 .github/workflows/      3-hourly ingest cron
@@ -84,6 +88,7 @@ Run on 2026-10-06 against a local Postgres 16:
 | Part | State |
 |---|---|
 | Fetch, normalize, dedupe, triage | ✅ verified on real GitHub feeds |
+| Typed change lists (2026-10-10) | ✅ parser unit-tested on Kyverno, OPA, release-please and Salesforce formats; rebuild run on 473 stored releases (4,131 lines, 7% untyped). ⚠️ Full notes via the GitHub API not exercised here: this sandbox now refuses github.com for repos not attached to the session, so stored releases keep their 12,000-character feed text until `rebuild:releases -- --refetch` runs somewhere with GitHub access |
 | Blog RSS feeds | ⚠️ the build sandbox's network policy blocked these five hosts, so they were not fetched here. The URLs were confirmed working from a normal network on 2026-09-22. Confirm on day 1 with `npm run ingest:dry` |
 | LLM summarization | ⚠️ typechecked against the current SDK, not run live (no API key in the build environment). First real run should use `MAX_LLM_CALLS_PER_RUN=10` |
 | Auto-publish and admin audit | ✅ publish checks unit-tested; publish path verified against Postgres with a stubbed model call (2026-10-09). Not yet run with a live model |

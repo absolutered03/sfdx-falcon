@@ -2,9 +2,13 @@
 :root {
   --fg: #1a1a1a; --muted: #666; --line: #e5e5e5; --bg: #fff; --accent: #0b5cad;
   --major: #b42318; --notable: #475467; --sponsor: #8a6d00;
+  --add-fg: #1a7f37; --add-bg: #e6ffec; --del-fg: #cf222e; --del-bg: #ffebe9; --sec-fg: #bc4c00; --sec-bg: #fff1e5;
+  --chg-fg: #9a6700; --fix-fg: #1b7c83;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) {
-  :root { --fg: #e8e8e8; --muted: #9a9a9a; --line: #2a2a2a; --bg: #111; --accent: #6aa9ff; --major: #ff7a6b; --notable: #aab4c3; --sponsor: #e0c060; }
+  :root { --fg: #e8e8e8; --muted: #9a9a9a; --line: #2a2a2a; --bg: #111; --accent: #6aa9ff; --major: #ff7a6b; --notable: #aab4c3; --sponsor: #e0c060;
+    --add-fg: #3fb950; --add-bg: #12261e; --del-fg: #f85149; --del-bg: #2d1517; --sec-fg: #f0883e; --sec-bg: #2b1d0e; --chg-fg: #d29922; --fix-fg: #39c5cf; }
 }
 * { box-sizing: border-box; }
 body { margin: 0; font: 16px/1.55 system-ui, sans-serif; color: var(--fg); background: var(--bg); }
@@ -56,3 +60,24 @@ button { font: inherit; padding: 6px 14px; cursor: pointer; }
 .add-tool { display: grid; gap: 8px; margin: 8px 0; }
 .add-tool label { display: grid; gap: 2px; font-size: 13px; color: var(--muted); }
 details summary { cursor: pointer; color: var(--accent); }
+
+/* Release history: diff-style typed change lists (legend from design/prototype-v1). */
+.release { border-top: 1px solid var(--line); padding: 12px 0; }
+.release-head { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; font-family: var(--mono); font-size: 14px; }
+.release-head .ver { font-weight: 600; }
+.diffstat { display: flex; flex-wrap: wrap; gap: 4px 12px; font-family: var(--mono); font-size: 12px; color: var(--muted); margin: 6px 0; }
+.ds-added { color: var(--add-fg); } .ds-removed, .ds-deprecated { color: var(--del-fg); } .ds-security { color: var(--sec-fg); }
+.ds-changed { color: var(--chg-fg); } .ds-fixed { color: var(--fix-fg); }
+ul.chg { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+ul.chg li { display: grid; grid-template-columns: 1.6em 1fr; padding: 2px 6px 2px 0; border-radius: 2px; }
+ul.chg .sig { font-family: var(--mono); font-weight: 700; text-align: center; }
+.chg-added { background: var(--add-bg); } .chg-added .sig { color: var(--add-fg); }
+.chg-removed { background: var(--del-bg); } .chg-removed .sig { color: var(--del-fg); }
+.chg-security { background: var(--sec-bg); } .chg-security .sig { color: var(--sec-fg); }
+.chg-deprecated { color: var(--muted); } .chg-deprecated .sig { color: var(--chg-fg); }
+.chg-changed .sig { color: var(--chg-fg); } .chg-fixed .sig { color: var(--fix-fg); }
+.chg-other .sig, .chg-maintenance .sig { color: var(--muted); } .chg-maintenance { color: var(--muted); }
+.brk, .dep { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .03em; margin-right: 6px; padding: 0 4px; border: 1px solid currentColor; border-radius: 2px; }
+.brk { color: var(--major); } .dep { color: var(--chg-fg); }
+.changes details { margin: 4px 0; font-size: 14px; }
+.chg-src { font-size: 13px; }

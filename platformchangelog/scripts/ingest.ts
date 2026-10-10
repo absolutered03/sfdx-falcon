@@ -14,7 +14,7 @@
 //   npm run ingest:dry       fetch + normalize + prefilter only; no DB, no LLM, prints what it would do
 
 import { readFileSync } from "node:fs";
-import { desc, eq, lt } from "drizzle-orm";
+import { and, desc, eq, lt } from "drizzle-orm";
 import { getDb, schema } from "../src/db/client";
 import {
   EXCERPT_LIMIT,
@@ -27,6 +27,7 @@ import {
   parseFeed,
   type RawItem,
 } from "../src/ingest/normalize";
+import { fetchChangelog, fetchGithubReleases, releaseContent, releaseNotesTriage, type FetchResult } from "../src/ingest/releases";
 import { prefilter } from "../src/ingest/prefilter";
 import { draftItem } from "../src/ingest/draft";
 import { SITE_URL } from "../src/lib/site";
@@ -39,23 +40,15 @@ const USER_AGENT = `platformchangelog-ingest/0.1 (+${SITE_URL}/about)`;
 type SourceRow = typeof schema.sources.$inferSelect;
 type SourceSeed = Pick<SourceRow, "slug" | "name" | "kind" | "tier"> & Partial<SourceRow>;
 
-const isReleaseSource = (s: SourceSeed) => s.kind === "github_releases" || !!s.releaseFeed;
-
-const feedUrlFor = (s: SourceSeed) =>
-  s.kind === "github_releases" ? `https://github.com/${s.githubRepo}/releases.atom` : s.feedUrl!;
-
-interface FetchResult {
-  status: "ok" | "not_modified";
-  items: RawItem[];
-  etag?: string | null;
-  lastModified?: string | null;
-}
+const isReleaseSource = (s: SourceSeed) => s.kind === "github_releases" || s.kind === "changelog_md" || !!s.releaseFeed;
 
 async function fetchSource(s: SourceSeed): Promise<FetchResult> {
+  if (s.kind === "github_releases") return fetchGithubReleases(s.githubRepo!, USER_AGENT, s.etag);
+  if (s.kind === "changelog_md") return fetchChangelog(s.feedUrl!, s.siteUrl ?? s.feedUrl!, USER_AGENT, s.etag);
   const headers: Record<string, string> = { "user-agent": USER_AGENT, accept: "application/rss+xml, application/atom+xml, application/xml, text/xml" };
   if (s.etag) headers["if-none-match"] = s.etag;
   if (s.lastModified) headers["if-modified-since"] = s.lastModified;
-  const res = await fetch(feedUrlFor(s), { headers, signal: AbortSignal.timeout(20_000) });
+  const res = await fetch(s.feedUrl!, { headers, signal: AbortSignal.timeout(20_000) });
   if (res.status === 304) return { status: "not_modified", items: [] };
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return {
@@ -77,20 +70,23 @@ function releaseTitle(title: string, toolName?: string): string {
 
 type Triage = { status: "pending_llm" | "out_of_scope" | "logged"; reason: string };
 
-function triage(s: SourceSeed, it: RawItem): Triage {
+function triage(s: SourceSeed, it: RawItem, rel?: ReturnType<typeof releaseContent>): Triage {
   if (isReleaseSource(s)) {
     if (!isProductReleaseTag(it.title)) return { status: "out_of_scope", reason: "component or chart tag" };
     if (s.tagPattern && !new RegExp(s.tagPattern).test(it.title)) return { status: "out_of_scope", reason: "other component" };
     if (isPrerelease(it.title)) return { status: "out_of_scope", reason: "prerelease tag" };
-    const version = extractVersion(it.title);
-    const security = mentionsSecurity(it.excerpt);
+    const { body, lines } = rel ?? releaseContent(it, s.kind !== "rss");
+    const notes = s.kind === "rss" ? null : releaseNotesTriage(it, body, lines);
+    if (notes) return notes;
+    const version = it.version ?? extractVersion(it.title);
+    const security = mentionsSecurity(body);
     if (s.releasePolicy === "major_or_security" && !security && !isMajorRelease(version)) {
       return { status: "logged", reason: "supporting tool: not a major or security release" };
     }
     if (isPatchRelease(version) && !security) {
       return { status: "logged", reason: "routine patch release" };
     }
-    return { status: "pending_llm", reason: "github release" };
+    return { status: "pending_llm", reason: "release" };
   }
   if (!s.keywordFilter) return { status: "pending_llm", reason: "niche source, no prefilter" };
   const pf = prefilter(it.title, s.keywordTitleOnly ? "" : it.excerpt, s.keywordTerms);
@@ -146,9 +142,21 @@ async function fetchPhase(db: ReturnType<typeof getDb>) {
         // history (no LLM call), so every tool shows a current version from day one.
         const old = it.publishedAt.getTime() < cutoff;
         if (old && !isReleaseSource(s)) continue;
-        let t = triage(s, it);
-        if (old && t.status === "pending_llm") t = { status: "logged", reason: "release history from before the first fetch" };
         const isRelease = isReleaseSource(s);
+        const rel = isRelease ? releaseContent(it, s.kind !== "rss") : null;
+        const version = isRelease ? (it.version ?? extractVersion(it.title)) : null;
+        // A changelog file re-labels a section as it moves from stable to older, which
+        // changes its anchor: match on version and keep the link current.
+        if (s.kind === "changelog_md" && version) {
+          const [existing] = await db.select({ id: schema.items.id }).from(schema.items)
+            .where(and(eq(schema.items.sourceId, s.id), eq(schema.items.version, version)));
+          if (existing) {
+            await db.update(schema.items).set({ url: it.url }).where(eq(schema.items.id, existing.id));
+            continue;
+          }
+        }
+        let t = triage(s, it, rel ?? undefined);
+        if (old && t.status === "pending_llm") t = { status: "logged", reason: "release history from before the first fetch" };
         const [row] = await db
           .insert(schema.items)
           .values({
@@ -156,12 +164,14 @@ async function fetchPhase(db: ReturnType<typeof getDb>) {
             url: it.url,
             title: isRelease ? releaseTitle(it.title, s.entitySlug ? entityName.get(s.entitySlug) : undefined) : it.title,
             publishedAt: it.publishedAt,
-            excerpt: it.excerpt,
+            excerpt: rel ? rel.excerpt : it.excerpt,
+            body: rel?.body ?? null,
+            changes: rel?.lines ?? null,
             contentHash: it.contentHash,
             status: t.status,
             statusReason: t.reason,
             kind: isRelease ? "release" : "post",
-            version: isRelease ? extractVersion(it.title) : null,
+            version,
             categories: s.defaultCategories,
           })
           .onConflictDoNothing({ target: schema.items.url })

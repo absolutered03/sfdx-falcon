@@ -1,3 +1,4 @@
+import { DiffStat } from "@/components/ChangeList";
 import type { FeedItem } from "@/lib/queries";
 import { CATEGORY_LABELS, type Category } from "@/lib/taxonomy";
 
@@ -24,6 +25,7 @@ export function ItemCard({ row }: { row: FeedItem }) {
       {item.platformImpact && (
         <p className="impact"><b>For platform teams:</b> {item.platformImpact}</p>
       )}
+      {item.kind === "release" && item.changes && item.changes.length > 1 && <DiffStat lines={item.changes} />}
       {item.editorNote && <p className="editor">Editor: {item.editorNote}</p>}
       {entities.length > 0 && (
         <div className="meta">

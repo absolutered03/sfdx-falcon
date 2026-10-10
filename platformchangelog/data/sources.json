@@ -249,7 +249,23 @@
     "defaultCategories": [
       "app_platforms"
     ],
-    "releasePolicy": "major_or_security"
+    "releasePolicy": "major_or_security",
+    "active": false,
+    "_note": "Disabled 2026-10-10: every GitHub release here is a nightly build whose notes say only '!! Release as nightly !!'. The real notes are the weekly stable sections in forcedotcom/cli, see salesforce-cli-release-notes."
+  },
+  {
+    "slug": "salesforce-cli-release-notes",
+    "name": "Salesforce CLI release notes",
+    "kind": "changelog_md",
+    "tier": "vendor",
+    "feedUrl": "https://raw.githubusercontent.com/forcedotcom/cli/main/releasenotes/README.md",
+    "siteUrl": "https://github.com/forcedotcom/cli/blob/main/releasenotes/README.md",
+    "entitySlug": "salesforce-cli",
+    "defaultCategories": [
+      "app_platforms"
+    ],
+    "releasePolicy": "major_or_security",
+    "_note": "Added 2026-10-10. Weekly stable releases with typed NEW / CHANGE / FIX entries; release-candidate sections are skipped until they ship as stable."
   },
   {
     "slug": "gh-salesforce-dx-mcp",
